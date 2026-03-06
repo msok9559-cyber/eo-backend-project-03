@@ -4,7 +4,7 @@ spring:
 
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:h2:~/test;AUTO_SERVER=TRUE;TIME_ZONE=Asia/Seoul
+    url: jdbc:log4jdbc:h2:~/test;AUTO_SERVER=TRUE;
     username: sa
     password:
 
@@ -17,7 +17,7 @@ spring:
     database: h2
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         time_zone: Asia/Seoul
