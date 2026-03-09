@@ -52,3 +52,7 @@ spring:
 alan:
   client-id: test-alan-key
   base-url: https://kdt-api-function.azurewebsites.net/api/v1
+
+jwt:
+  secret: xP2LFnL8MwWYKIvs4SCshI6tuCKYJYmKZueaGHehy0R
+  expiration: 30m

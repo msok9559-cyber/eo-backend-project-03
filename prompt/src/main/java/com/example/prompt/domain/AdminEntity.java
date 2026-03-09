@@ -21,7 +21,7 @@ public class AdminEntity {
     @Column(name = "admin_id", nullable = false, unique = true, length = 50)
     private String adminId;
 
-    @Column(name = "adminName", nullable = false, length = 50)
+    @Column(name = "admin_name", nullable = false, length = 50)
     private String adminName;
 
     @Column(name = "password", nullable = false, length = 255)

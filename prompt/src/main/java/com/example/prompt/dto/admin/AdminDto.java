@@ -21,6 +21,7 @@ public class AdminDto {
     @Getter
     @AllArgsConstructor
     public static class LoginResponse {
+        private String accessToken;
         private String adminId;
         private String name;
     }
