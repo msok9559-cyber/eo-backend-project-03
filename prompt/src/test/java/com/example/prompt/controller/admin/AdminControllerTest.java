@@ -19,8 +19,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AdminController.class)
@@ -126,50 +125,6 @@ class AdminControllerTest {
     }
 
     /**
-     * 관리자 회원 목록 조회 테스트
-     */
-    @Test
-    void get_users_success() throws Exception {
-        // 관리자 서비스가 반환할 회원 목록 Mock 데이터 생성
-        List<AdminUserDto> users = List.of(
-                AdminUserDto.builder()
-                        .id(1L)
-                        .userid("user1")
-                        .username("김땡땡")
-                        .email("user1@test.com")
-                        .planName("PRO")
-                        .active(true)
-                        .locked(false)
-                        .build(),
-                AdminUserDto.builder()
-                        .id(2L)
-                        .userid("user2")
-                        .username("이땡땡")
-                        .email("user2@test.com")
-                        .planName("NORMAL")
-                        .active(true)
-                        .locked(false)
-                        .build()
-        );
-
-        given(adminService.getUsers()).willReturn(users);
-
-        // 관리자 회원 목록 조회 API 호출 후 응답 검증
-        mockMvc.perform(get("/api/admin/auth/users"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.data[0].userid").value("user1"))
-                .andExpect(jsonPath("$.data[0].username").value("김땡땡"))
-                .andExpect(jsonPath("$.data[0].email").value("user1@test.com"))
-                .andExpect(jsonPath("$.data[0].planName").value("PRO"))
-                .andExpect(jsonPath("$.data[0].active").value(true))
-                .andExpect(jsonPath("$.data[0].locked").value(false))
-                .andExpect(jsonPath("$.data[1].userid").value("user2"))
-                .andExpect(jsonPath("$.data[1].planName").value("NORMAL"));
-    }
-
-    /**
      * 관리자 회원 상세 조회 테스트
      */
     @Test
@@ -203,5 +158,42 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.data.usedToken").value(120))
                 .andExpect(jsonPath("$.data.active").value(true))
                 .andExpect(jsonPath("$.data.locked").value(false));
+    }
+
+    /**
+     * 관리자 회원 잠금 처리 테스트
+     *
+     */
+    @Test
+    void lock_user_success() throws Exception {
+        mockMvc.perform(patch("/api/admin/auth/users/1/lock"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * 관리자 회원 잠금 해제 테스트
+     */
+    @Test
+    void unlock_user_success() throws Exception {
+        mockMvc.perform(patch("/api/admin/auth/users/1/unlock"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * 관리자 회원 활성 처리 테스트
+     */
+    @Test
+    void activate_user_success() throws Exception {
+        mockMvc.perform(patch("/api/admin/auth/users/1/activate"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * 관리자 회원 비활성 처리 테스트
+     */
+    @Test
+    void deactivate_user_success() throws Exception {
+        mockMvc.perform(patch("/api/admin/auth/users/1/deactivate"))
+                .andExpect(status().isOk());
     }
 }

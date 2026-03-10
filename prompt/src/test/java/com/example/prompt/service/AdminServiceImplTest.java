@@ -1,12 +1,11 @@
 package com.example.prompt.service;
 
 import com.example.prompt.domain.AdminEntity;
+import com.example.prompt.domain.PlanEntity;
+import com.example.prompt.domain.UserEntity;
 import com.example.prompt.dto.admin.AdminDto;
 import com.example.prompt.dto.admin.DashboardDto;
-import com.example.prompt.repository.AdminRepository;
-import com.example.prompt.repository.ChatMessageRepository;
-import com.example.prompt.repository.ChatRoomRepository;
-import com.example.prompt.repository.UserRepository;
+import com.example.prompt.repository.*;
 import com.example.prompt.security.jwt.JwtProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +39,13 @@ class AdminServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
+    private PlanRepository planRepository;
+
+    @Mock
     private JwtProvider jwtProvider;
+
+    @Mock
+    private AdminActionLogRepository adminActionLogRepository;
 
     @InjectMocks
     private AdminServiceImpl adminService;
@@ -182,5 +187,97 @@ class AdminServiceImplTest {
         assertThat(result.getActiveUsers()).isEqualTo(8L);
         assertThat(result.getLockedUsers()).isEqualTo(1L);
         assertThat(result.getInactiveUsers()).isEqualTo(2L);
+    }
+
+    /**
+     * 회원 플랜 변경 성공
+     */
+    @Test
+    void changeUserPlan_success() {
+        String adminId = "admin1";
+        Long userId = 1L;
+        AdminDto.ChangePlanRequest request = new AdminDto.ChangePlanRequest("PRO");
+
+        PlanEntity beforePlan = PlanEntity.builder()
+                .planId(1L)
+                .planName("NORMAL")
+                .tokenLimit(500)
+                .aiUse(50)
+                .price(0)
+                .build();
+
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .userid("user1")
+                .plan(beforePlan)
+                .build();
+
+        PlanEntity afterPlan = PlanEntity.builder()
+                .planId(2L)
+                .planName("PRO")
+                .tokenLimit(1000)
+                .aiUse(100)
+                .price(19900)
+                .build();
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(planRepository.findByPlanName("PRO")).willReturn(Optional.of(afterPlan));
+
+        adminService.changeUserPlan(adminId, userId, request);
+
+        assertEquals("PRO", user.getPlan().getPlanName());
+    }
+
+    /**
+     * 회원 플랜 변경 실패 (회원 없음)
+     */
+    @Test
+    void changeUserPlan_fail_userNotFound() {
+        String adminId = "admin1";
+        Long userId = 999L;
+        AdminDto.ChangePlanRequest request = new AdminDto.ChangePlanRequest("PRO");
+
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> adminService.changeUserPlan(adminId, userId, request)
+        );
+
+        assertEquals("회원을 찾을 수 없습니다. id=" + userId, exception.getMessage());
+    }
+
+    /**
+     * 회원 플랜 변경 실패 (플랜 없음)
+     */
+    @Test
+    void changeUserPlan_fail_planNotFound() {
+        String adminId = "admin1";
+        Long userId = 1L;
+        AdminDto.ChangePlanRequest request = new AdminDto.ChangePlanRequest("VIP");
+
+        PlanEntity beforePlan = PlanEntity.builder()
+                .planId(1L)
+                .planName("NORMAL")
+                .tokenLimit(500)
+                .aiUse(50)
+                .price(0)
+                .build();
+
+        UserEntity user = UserEntity.builder()
+                .id(userId)
+                .userid("user1")
+                .plan(beforePlan)
+                .build();
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(planRepository.findByPlanName("VIP")).willReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> adminService.changeUserPlan(adminId, userId, request)
+        );
+
+        assertEquals("존재하지 않는 플랜입니다. planName=VIP", exception.getMessage());
     }
 }
