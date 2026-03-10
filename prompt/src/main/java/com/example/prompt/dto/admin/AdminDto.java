@@ -32,4 +32,11 @@ public class AdminDto {
         private String adminId;
         private String name;
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangePlanRequest {
+        private String planName;
+    }
 }

@@ -1,14 +1,12 @@
 package com.example.prompt.controller.admin;
 
-import com.example.prompt.dto.admin.AdminDto;
-import com.example.prompt.dto.admin.AdminUserDetailDto;
-import com.example.prompt.dto.admin.AdminUserDto;
-import com.example.prompt.dto.admin.DashboardDto;
+import com.example.prompt.dto.admin.*;
 import com.example.prompt.dto.common.ApiResponse;
 import com.example.prompt.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,8 +62,11 @@ public class AdminController {
      * 관리자 회원 목록 조회
      */
     @GetMapping("/users")
-    public ApiResponse<List<AdminUserDto>> getUsers() {
-        return ApiResponse.ok(adminService.getUsers());
+    public ApiResponse<Page<AdminUserDto>> getUsers(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            Pageable pageable
+    ) {
+        return ApiResponse.ok(adminService.searchUsers(keyword, pageable));
     }
 
     /**
@@ -76,5 +77,65 @@ public class AdminController {
         return ApiResponse.ok(adminService.getUserDetail(userId));
     }
 
+    /**
+     * 회원 잠금 (계정 잠금)
+     */
+    @PatchMapping("/users/{userId}/lock")
+    public ApiResponse<Void> lockUser(Authentication authentication, @PathVariable Long userId) {
+        String adminId = (String) authentication.getPrincipal();
+        adminService.lockUser(adminId, userId);
+        return ApiResponse.ok(null);
+    }
 
+    /**
+     * 회원 잠금 해제
+     */
+    @PatchMapping("/users/{userId}/unlock")
+    public ApiResponse<Void> unlockUser(Authentication authentication, @PathVariable Long userId) {
+        String adminId = (String) authentication.getPrincipal();
+        adminService.unlockUser(adminId, userId);
+        return ApiResponse.ok(null);
+    }
+
+    /**
+     * 회원 활성화
+     */
+    @PatchMapping("/users/{userId}/activate")
+    public ApiResponse<Void> activateUser(Authentication authentication, @PathVariable Long userId) {
+        String adminId = (String) authentication.getPrincipal();
+        adminService.activateUser(adminId, userId);
+        return ApiResponse.ok(null);
+    }
+
+    /**
+     * 회원 비활성화 (탈퇴 처리)
+     */
+    @PatchMapping("/users/{userId}/deactivate")
+    public ApiResponse<Void> deactivateUser(Authentication authentication, @PathVariable Long userId) {
+        String adminId = (String) authentication.getPrincipal();
+        adminService.deactivateUser(adminId, userId);
+        return ApiResponse.ok(null);
+    }
+
+    /**
+     * 회원 플랜 변경
+     */
+    @PatchMapping("/users/{userId}/plan")
+    public ApiResponse<Void> changeUserPlan(
+            Authentication authentication,
+            @PathVariable Long userId,
+            @Valid @RequestBody AdminDto.ChangePlanRequest request
+    ) {
+        String adminId = (String) authentication.getPrincipal();
+        adminService.changeUserPlan(adminId, userId, request);
+        return ApiResponse.ok(null);
+    }
+
+    /**
+     * 관리자 처리 이력 조회
+     */
+    @GetMapping("/logs")
+    public ApiResponse<Page<AdminActionLogDto>> getAdminActionLogs(Pageable pageable) {
+        return ApiResponse.ok(adminService.getAdminActionLogs(pageable));
+    }
 }
