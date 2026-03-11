@@ -4,6 +4,7 @@ import com.example.prompt.domain.ChatMessageEntity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public class ChatMessageDto {
 
     // 요청 DTO
     @Getter
+    @NoArgsConstructor
     public static class Request {
 
         // 사용자가 입력한 메시지 내용 필수

@@ -3,10 +3,13 @@ package com.example.prompt.service;
 import com.example.prompt.client.AlanAiClient;
 import com.example.prompt.domain.ChatMessageEntity;
 import com.example.prompt.domain.ChatRoomEntity;
+import com.example.prompt.domain.UserEntity;
 import com.example.prompt.dto.chat.ChatMessageDto;
 import com.example.prompt.dto.chat.ChatRoomDto;
 import com.example.prompt.repository.ChatMessageRepository;
 import com.example.prompt.repository.ChatRoomRepository;
+import com.example.prompt.repository.PlanModelRepository;
+import com.example.prompt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,19 +29,28 @@ public class ChatService {
     private final AlanAiClient alanAiClient;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
+    private final PlanModelRepository planModelRepository;
 
     /**
      * 채팅방 생성
-     * - 사용자 ID + 제목 + 모델명으로 chatroom 테이블에 INSERT
+     * - 사용자의 플랜에서 해당 모델 사용 가능 여부 검증 후 생성
      */
     public ChatRoomDto.Response createChatRoom(Long userId, ChatRoomDto.Request dto) {
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        // 플랜에서 해당 모델 사용 가능 여부 검증
+        checkModelAvailable(user, dto.getModel());
+
         ChatRoomEntity chatRoom = ChatRoomEntity.builder()
                 .id(userId)
                 .chatTitle(dto.getChatTitle())
                 .model(dto.getModel())
                 .build();
 
-        log.info("채팅방 생성 userId = {}", userId);
+        log.info("채팅방 생성 userId = {}, model = {}", userId, dto.getModel());
         return ChatRoomDto.Response.from(chatRoomRepository.save(chatRoom));
     }
 
@@ -70,18 +82,27 @@ public class ChatService {
 
     /**
      * SSE 스트리밍 메시지 전송 (핵심 기능!)
-     * 1. 사용자 메시지 DB 저장
-     * 2. 앨런 AI 에 SSE 스트리밍 요청
-     * 3. 글자 chunk 올 때마다 → 브라우저로 실시간 전송
-     * 4. 스트리밍 완료 시 → AI 응답 전체를 DB 저장
+     * 1. 토큰 한도 초과 여부 확인
+     * 2. 사용자 메시지 DB 저장
+     * 3. 앨런 AI 에 SSE 스트리밍 요청
+     * 4. 글자 chunk 올 때마다 → 브라우저로 실시간 전송
+     * 5. 스트리밍 완료 시 → AI 응답 전체 DB 저장 + 토큰 차감
      */
-    public SseEmitter streamMessage(Long chatroomId, String content) {
+    public SseEmitter streamMessage(Long chatroomId, Long userId, String content) {
         // 3분 타임아웃 (앨런 AI 응답이 늦어질 경우 대비)
         SseEmitter emitter = new SseEmitter(180_000L);
 
         // 채팅방 존재 여부 확인
-        chatRoomRepository.findById(chatroomId)
+        ChatRoomEntity chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
+
+        // 채팅방 소유자 검증
+        checkChatRoomOwner(chatRoom, userId);
+
+        // 사용자 조회 및 토큰 한도 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+        checkTokenLimit(user);
 
         // 1. 사용자 메시지 DB 저장 (role = "user")
         chatMessageRepository.save(
@@ -118,7 +139,11 @@ public class ChatService {
                             chatMessageRepository.save(
                                     ChatMessageEntity.of(chatroomId, "assistant", aiMessage, tokensUsed));
 
-                            log.info("스트리밍 완료 chatroomId = {}", chatroomId);
+                            // 5. 사용자 토큰 차감
+                            user.setUsedToken(user.getUsedToken() + tokensUsed);
+                            userRepository.save(user);
+
+                            log.info("스트리밍 완료 chatroomId = {}, tokensUsed = {}", chatroomId, tokensUsed);
                             emitter.complete();
                         }
                 );
@@ -128,25 +153,24 @@ public class ChatService {
 
     /**
      * 채팅방 제목 수정
-     * - chatTitle 만 변경 (return this 체이닝)
      */
-    public void updateTitle(Long chatroomId, String chatTitle) {
+    public void updateTitle(Long chatroomId, Long userId, String chatTitle) {
         ChatRoomEntity room = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
 
+        checkChatRoomOwner(room, userId);
         room.updateTitle(chatTitle);
         log.info("제목 수정 chatroomId = {}, chatTitle = {}", chatroomId, chatTitle);
     }
 
     /**
      * 채팅방 단건 삭제 (Soft Delete)
-     * - DB에서 실제 삭제 X, deleted_at 에 현재 시간만 기록
-     * - 앨런 AI 대화 기록도 같이 초기화
      */
-    public void deleteChatRoom(Long chatroomId) {
+    public void deleteChatRoom(Long chatroomId, Long userId) {
         ChatRoomEntity room = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
 
+        checkChatRoomOwner(room, userId);
         room.delete();
         alanAiClient.resetState();
 
@@ -155,7 +179,6 @@ public class ChatService {
 
     /**
      * 전체 채팅방 삭제 (Soft Delete)
-     * - 해당 사용자의 모든 채팅방 삭제
      */
     public void deleteAllChatRooms(Long userId) {
         List<ChatRoomEntity> rooms = chatRoomRepository
@@ -165,5 +188,40 @@ public class ChatService {
         alanAiClient.resetState();
 
         log.info("전체 채팅방 삭제 userId = {}", userId);
+    }
+
+    /**
+     * 플랜에서 해당 모델 사용 가능 여부 검증
+     */
+    private void checkModelAvailable(UserEntity user, String modelName) {
+        Long planId = user.getPlan().getPlanId();
+        boolean available = planModelRepository.existsByPlan_PlanIdAndModelName(planId, modelName);
+        if (!available) {
+            log.warn("모델 사용 불가 - planId = {}, modelName = {}", planId, modelName);
+            throw new IllegalArgumentException("현재 플랜에서 사용할 수 없는 모델입니다: " + modelName);
+        }
+        log.info("모델 사용 가능 확인 - planId = {}, modelName = {}", planId, modelName);
+    }
+
+    /**
+     * 채팅방 소유자 검증
+     */
+    private void checkChatRoomOwner(ChatRoomEntity chatRoom, Long userId) {
+        if (!chatRoom.getId().equals(userId)) {
+            log.warn("채팅방 소유자 불일치 - chatroomId = {}, userId = {}", chatRoom.getChatroomId(), userId);
+            throw new IllegalArgumentException("해당 채팅방에 접근 권한이 없습니다");
+        }
+    }
+
+    /**
+     * 토큰 한도 초과 여부 확인
+     */
+    private void checkTokenLimit(UserEntity user) {
+        int tokenLimit = user.getPlan().getTokenLimit();
+        int usedToken = user.getUsedToken();
+        if (usedToken >= tokenLimit) {
+            log.warn("토큰 한도 초과 - userId = {}, usedToken = {}, tokenLimit = {}", user.getId(), usedToken, tokenLimit);
+            throw new IllegalArgumentException("토큰 한도를 초과했습니다. 플랜을 업그레이드 해주세요");
+        }
     }
 }

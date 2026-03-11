@@ -2,11 +2,13 @@ package com.example.prompt.controller.chat;
 
 import com.example.prompt.dto.chat.ChatMessageDto;
 import com.example.prompt.dto.chat.ChatRoomDto;
+import com.example.prompt.security.CustomUserDetails;
 import com.example.prompt.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,11 +28,10 @@ public class ChatController {
      */
     @PostMapping("/rooms")
     public ResponseEntity<ChatRoomDto.Response> createRoom(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid ChatRoomDto.Request dto
     ) {
-        // TODO: 로그인 기능 완성 후 userId 를 SecurityContext 에서 꺼내도록 수정
-        Long userId = 1L; // 임시 userId (팀원 Security 완성 후 교체)
-        return ResponseEntity.ok(chatService.createChatRoom(userId, dto));
+        return ResponseEntity.ok(chatService.createChatRoom(userDetails.getId(), dto));
     }
 
     /**
@@ -38,10 +39,10 @@ public class ChatController {
      * GET "http://localhost:8080/api/chat/rooms"
      */
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomDto.Response>> getRooms() {
-        // TODO: 로그인 기능 완성 후 userId 를 SecurityContext 에서 꺼내도록 수정
-        Long userId = 1L;
-        return ResponseEntity.ok(chatService.getChatRooms(userId));
+    public ResponseEntity<List<ChatRoomDto.Response>> getRooms(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok(chatService.getChatRooms(userDetails.getId()));
     }
 
     /**
@@ -58,15 +59,15 @@ public class ChatController {
     /**
      * SSE 스트리밍 — AI에게 질문하고 ChatGPT처럼 글자 하나씩 받기
      * GET "http://localhost:8080/api/chat/rooms/1/stream?content=안녕"
-     * produces = TEXT_EVENT_STREAM_VALUE → SSE 연결임을 브라우저에 알림
      */
     @GetMapping(value = "/rooms/{chatroomId}/stream",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long chatroomId,
             @RequestParam String content
     ) {
-        return chatService.streamMessage(chatroomId, content);
+        return chatService.streamMessage(chatroomId, userDetails.getId(), content);
     }
 
     /**
@@ -75,10 +76,11 @@ public class ChatController {
      */
     @PatchMapping("/rooms/{chatroomId}/title")
     public ResponseEntity<String> updateTitle(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long chatroomId,
             @RequestParam String chatTitle
     ) {
-        chatService.updateTitle(chatroomId, chatTitle);
+        chatService.updateTitle(chatroomId, userDetails.getId(), chatTitle);
         return ResponseEntity.ok("제목 수정 완료");
     }
 
@@ -88,9 +90,10 @@ public class ChatController {
      */
     @DeleteMapping("/rooms/{chatroomId}")
     public ResponseEntity<String> deleteRoom(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long chatroomId
     ) {
-        chatService.deleteChatRoom(chatroomId);
+        chatService.deleteChatRoom(chatroomId, userDetails.getId());
         return ResponseEntity.ok("채팅방 삭제 완료");
     }
 
@@ -99,10 +102,10 @@ public class ChatController {
      * DELETE "http://localhost:8080/api/chat/rooms/all"
      */
     @DeleteMapping("/rooms/all")
-    public ResponseEntity<String> deleteAllRooms() {
-        // TODO: 로그인 기능 완성 후 userId 를 SecurityContext 에서 꺼내도록 수정
-        Long userId = 1L; // 임시 userId
-        chatService.deleteAllChatRooms(userId);
+    public ResponseEntity<String> deleteAllRooms(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        chatService.deleteAllChatRooms(userDetails.getId());
         return ResponseEntity.ok("전체 삭제 완료");
     }
 }

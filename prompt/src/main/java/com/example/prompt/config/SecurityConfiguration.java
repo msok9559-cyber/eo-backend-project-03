@@ -39,6 +39,8 @@ class SecurityConfiguration {
     }
 
     /**
+     * /api/** 요청에 적용되는 SecurityFilterChain (JWT 인증, Stateless)
+     * "http://localhost:8080/api/..." 요청 처리
      * /api/** 요청에 적용되는 SecurityFilterChain (JWT 기반)
      */
     @Bean
@@ -54,6 +56,20 @@ class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // 인증 없이 허용 (회원가입, 이메일, 비밀번호 재설정)
+                        .requestMatchers(
+                                "/api/users",
+                                "/api/users/check-id",
+                                "/api/email/**",
+                                "/api/user/reset-password",
+                                "/api/admin/auth/login"
+                        ).permitAll()
+                        // 관리자 API - JWT 인증 필요
+                        .requestMatchers("/api/admin/**").authenticated()
+                        // 채팅 API - 로그인한 사용자만 (@AuthenticationPrincipal NPE 방지)
+                        .requestMatchers("/api/chat/**").authenticated()
+                        // 나머지 API (결제, 마이페이지 등) - 로그인 필요
+                        .anyRequest().authenticated()
                         .requestMatchers("/api/admin/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").authenticated()
                         .anyRequest().permitAll()
@@ -67,6 +83,12 @@ class SecurityConfiguration {
     }
 
     /**
+     * 그 외 모든 요청에 적용되는 SecurityFilterChain (Form 로그인, OAuth2)
+     * "http://localhost:8080/login", "http://localhost:8080/" 등 처리
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
      * 그 외 요청에 적용되는 SecurityFilterChain (Form/OAuth2 기반)
      */
     @Bean
@@ -116,4 +138,5 @@ class SecurityConfiguration {
 
         return http.build();
     }
+}
 }
