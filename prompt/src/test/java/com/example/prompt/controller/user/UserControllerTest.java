@@ -116,7 +116,7 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/mypage"))
                 .andDo(print())
-                .andExpect(status().is3xxRedirection()); // 로그인 페이지로 리다이렉트
+                .andExpect(status().isUnauthorized());
 
         log.info("Unauthorized mypage test passed");
     }

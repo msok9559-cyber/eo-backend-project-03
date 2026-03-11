@@ -1,0 +1,314 @@
+/*
+   CSS Variables (Light/Dark)
+ */
+:root {
+    --bg-primary:   #f8f8f6;
+    --bg-secondary: #ffffff;
+    --bg-card:      #ffffff;
+    --bg-nav:       rgba(248, 248, 246, 0.88);
+
+    --text-primary:   #111110;
+    --text-secondary: #555550;
+    --text-muted:     #999990;
+
+    --accent:       #111110;
+    --accent-hover: #333330;
+    --accent-light: #f0f0ee;
+
+    --border:      #e4e4e0;
+    --border-card: #e8e8e4;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
+    --shadow-nav: 0 2px 12px rgba(0,0,0,0.08);
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+
+    --transition: 0.25s ease;
+
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+}
+
+[data-theme="dark"] {
+    --bg-primary:   #111110;
+    --bg-secondary: #1a1a18;
+    --bg-card:      #1e1e1c;
+    --bg-nav:       rgba(17, 17, 16, 0.88);
+
+    --text-primary:   #f0f0ee;
+    --text-secondary: #a0a09a;
+    --text-muted:     #606060;
+
+    --accent:       #f0f0ee;
+    --accent-hover: #ccccca;
+    --accent-light: #2a2a28;
+
+    --border:      #2a2a28;
+    --border-card: #282826;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md:  0 4px 16px rgba(0,0,0,0.4);
+    --shadow-nav: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+/* Base*/
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    transition: background-color var(--transition), color var(--transition);
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color var(--transition);
+}
+
+/*
+   Navigation  #nav
+ */
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: var(--bg-nav);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: background-color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+#nav.scrolled {
+    box-shadow: var(--shadow-nav);
+    border-bottom-color: transparent;
+}
+
+#nav > div {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#nav > div > span {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+#nav > div > div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* 네비바 링크 공통 */
+#nav > div > div > a {
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    background: transparent;
+    transition: all var(--transition);
+}
+
+#nav > div > div > a:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+    background: var(--accent-light);
+}
+
+/* 네비바 마지막 a 태그 (회원가입 / 마이페이지) */
+#nav > div > div > a:last-of-type {
+    color: var(--bg-primary);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+#nav > div > div > a:last-of-type:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: var(--bg-primary);
+}
+
+/* 로그아웃 버튼 */
+.nav-logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1.1rem;
+    font-family: inherit;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    transition: all var(--transition);
+}
+
+.nav-logout-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+    background: var(--accent-light);
+}
+
+/* 다크모드 토글 */
+#dark-toggle {
+    width: 44px;
+    height: 24px;
+    background-color: var(--border);
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background-color var(--transition);
+    flex-shrink: 0;
+}
+
+#dark-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background-color: var(--bg-secondary);
+    border-radius: 50%;
+    transition: transform var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] #dark-toggle {
+    background-color: var(--text-primary);
+}
+
+[data-theme="dark"] #dark-toggle::after {
+    transform: translateX(20px);
+}
+
+/*
+   Footer  #footer
+ */
+#footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: 4rem 2rem 2rem;
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+#footer > div {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+#footer > div > div:first-child {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+}
+
+#footer > div > div:first-child > div:first-child > h3 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+#footer > div > div:first-child > div:first-child > p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+#footer > div > div:first-child > div:not(:first-child) > h4 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+}
+
+#footer > div > div:first-child > div:not(:first-child) > ul > li {
+    margin-bottom: 0.625rem;
+}
+
+#footer > div > div:first-child > div:not(:first-child) > ul > li > a {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    transition: color var(--transition);
+}
+
+#footer > div > div:first-child > div:not(:first-child) > ul > li > a:hover {
+    color: var(--text-primary);
+}
+
+#footer > div > div:last-child {
+    padding-top: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#footer > div > div:last-child > p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/*
+   Animations (공통)
+*/
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/*
+   Responsive - 공통
+ */
+@media (max-width: 768px) {
+    #footer > div > div:first-child {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    #footer > div > div:last-child {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}

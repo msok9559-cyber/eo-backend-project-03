@@ -4,6 +4,7 @@ import com.example.prompt.security.CustomOAuth2UserService;
 import com.example.prompt.security.CustomUserDetailsService;
 import com.example.prompt.security.jwt.JwtAuthenticationFilter;
 import com.example.prompt.security.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,11 +28,6 @@ class SecurityConfiguration {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService oAuth2UserService;
     private final JwtProvider jwtProvider;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -61,7 +57,8 @@ class SecurityConfiguration {
                                 "/api/users/check-id",
                                 "/api/email/**",
                                 "/api/user/reset-password",
-                                "/api/admin/auth/login"
+                                "/api/admin/auth/login",
+                                "/api/stats"
                         ).permitAll()
                         // 관리자 API - JWT 인증 필요
                         .requestMatchers("/api/admin/**").authenticated()
@@ -73,6 +70,11 @@ class SecurityConfiguration {
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider),
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
                 );
 
         return http.build();
@@ -92,7 +94,11 @@ class SecurityConfiguration {
                                 "/login", "/signup",
                                 "/payment",
                                 "/oauth2/**",
-                                "/h2-console/**"
+                                "/login/oauth2/**",
+                                "/h2-console/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

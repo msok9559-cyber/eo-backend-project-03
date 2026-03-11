@@ -2,6 +2,10 @@ spring:
   application:
     name: prompt
 
+  sql:
+    init:
+      mode: always
+
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: jdbc:log4jdbc:h2:~/test;AUTO_SERVER=TRUE;
@@ -16,6 +20,7 @@ spring:
   jpa:
     database: h2
     open-in-view: false
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     properties:
@@ -48,6 +53,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
 
 alan:
   client-id: test-alan-key
