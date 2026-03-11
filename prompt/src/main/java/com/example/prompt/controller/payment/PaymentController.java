@@ -29,6 +29,12 @@ public class PaymentController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody PaymentDto dto) {
 
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(
+                    PaymentDto.builder().success(false).message("로그인이 필요합니다.").build()
+            );
+        }
+
         log.info("결제 검증 요청 - userId: {}, impUid: {}", userDetails.getId(), dto.getImpUid());
         PaymentDto result = paymentService.verifyAndSave(userDetails.getId(), dto);
         return ResponseEntity.ok(result);
@@ -41,6 +47,10 @@ public class PaymentController {
     @GetMapping
     public ResponseEntity<List<PaymentDto>> getMyPayments(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body(null);
+        }
 
         log.info("결제 내역 조회 - userId: {}", userDetails.getId());
         List<PaymentDto> payments = paymentService.getMyPayments(userDetails.getId());

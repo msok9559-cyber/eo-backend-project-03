@@ -41,6 +41,7 @@ class SecurityConfiguration {
     /**
      * /api/** 요청에 적용되는 SecurityFilterChain (JWT 인증, Stateless)
      * "http://localhost:8080/api/..." 요청 처리
+     * /api/** 요청에 적용되는 SecurityFilterChain (JWT 기반)
      */
     @Bean
     @Order(1)
@@ -69,6 +70,9 @@ class SecurityConfiguration {
                         .requestMatchers("/api/chat/**").authenticated()
                         // 나머지 API (결제, 마이페이지 등) - 로그인 필요
                         .anyRequest().authenticated()
+                        .requestMatchers("/api/admin/auth/login").permitAll()
+                        .requestMatchers("/api/admin/**").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider),
@@ -85,6 +89,11 @@ class SecurityConfiguration {
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+     * 그 외 요청에 적용되는 SecurityFilterChain (Form/OAuth2 기반)
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -92,11 +101,14 @@ class SecurityConfiguration {
                                 "/login", "/signup",
                                 "/payment",
                                 "/oauth2/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/fonts/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // Form 로그인
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
@@ -106,13 +118,11 @@ class SecurityConfiguration {
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
-                // OAuth2 구글 로그인
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login")
                         .userInfoEndpoint(ui -> ui.userService(oAuth2UserService))
                         .defaultSuccessUrl("/", true)
                 )
-                // 로그아웃
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
@@ -120,7 +130,7 @@ class SecurityConfiguration {
                         .deleteCookies("JSESSIONID")
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**", "/api/**")
+                        .ignoringRequestMatchers("/h2-console/**")
                 )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin())
@@ -128,4 +138,5 @@ class SecurityConfiguration {
 
         return http.build();
     }
+}
 }

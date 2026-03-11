@@ -20,13 +20,13 @@ public class PaymentDto {
     private String planName;
 
     // 결제 금액
-    private int amount;
+    private Integer amount;
 
     // 결제 완료 시간
     private LocalDateTime paidAt;
 
     // 결제 성공 여부
-    private boolean success;
+    private Boolean success;
 
     // 메세지
     private String message;

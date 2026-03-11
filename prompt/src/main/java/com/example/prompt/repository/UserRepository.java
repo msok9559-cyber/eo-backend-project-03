@@ -7,6 +7,8 @@ import org.springframework.data.repository.Repository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
@@ -34,4 +36,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     // 오늘 가입자 수
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    // 검색 기능 + 페이징 처리
+    Page<UserEntity> findByUseridContainingOrEmailContaining(
+            String userid,
+            String email,
+            Pageable pageable
+    );
 }
