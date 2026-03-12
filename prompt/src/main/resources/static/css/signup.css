@@ -1,0 +1,280 @@
+/* Signup  #signup */
+
+#signup {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem 4rem;
+    background: var(--bg-primary);
+    transition: background-color var(--transition);
+}
+
+#signup > div {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 타이틀 */
+#signup > div > div:first-child > h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.375rem;
+}
+
+#signup > div > div:first-child > p {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+}
+
+/* 폼 전체 */
+#signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 각 필드 그룹 */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.form-group > label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-group > input,
+.form-group > .input-row > input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition), background-color var(--transition);
+    outline: none;
+}
+
+.form-group > input::placeholder,
+.form-group > .input-row > input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group > input:focus,
+.form-group > .input-row > input:focus {
+    border-color: var(--accent);
+}
+
+/* 인풋 + 버튼 한 줄 */
+.input-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-row > input {
+    flex: 1;
+}
+
+.input-row > button {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition);
+}
+
+.input-row > button:hover {
+    background: var(--accent-hover);
+}
+
+.input-row > button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 필드 메시지 */
+.field-msg {
+    font-size: 0.8125rem;
+    min-height: 1rem;
+}
+
+.field-msg.success {
+    color: #27ae60;
+}
+
+.field-msg.error {
+    color: #c0392b;
+}
+
+[data-theme="dark"] .field-msg.success {
+    color: #5dbb7a;
+}
+
+[data-theme="dark"] .field-msg.error {
+    color: #e07070;
+}
+
+/* 약관 동의 */
+#terms {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    transition: background-color var(--transition), border-color var(--transition);
+}
+
+.terms-all {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.terms-all > label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.terms-divider {
+    height: 1px;
+    background: var(--border);
+    transition: background-color var(--transition);
+}
+
+.terms-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.terms-item > label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.terms-item > label > .required {
+    color: #c0392b;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .terms-item > label > .required {
+    color: #e07070;
+}
+
+.terms-item > label > .optional {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* 체크박스 */
+#terms input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* 에러 메시지 */
+#signup-error {
+    background: #fff0f0;
+    border: 1px solid #ffd0d0;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+}
+
+[data-theme="dark"] #signup-error {
+    background: #2a1a1a;
+    border-color: #5a2a2a;
+}
+
+#signup-error > span {
+    font-size: 0.875rem;
+    color: #c0392b;
+}
+
+[data-theme="dark"] #signup-error > span {
+    color: #e07070;
+}
+
+/* 회원가입 버튼 */
+#signup-btn {
+    width: 100%;
+    padding: 0.8125rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background-color var(--transition), transform var(--transition);
+    margin-top: 0.25rem;
+}
+
+#signup-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+#signup-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 하단 링크 */
+#signup-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#signup-links > span {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+#signup-links > a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: color var(--transition);
+}
+
+#signup-links > a:hover {
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    #signup > div {
+        max-width: 100%;
+    }
+}
