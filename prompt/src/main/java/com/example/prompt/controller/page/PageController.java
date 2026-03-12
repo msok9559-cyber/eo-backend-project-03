@@ -10,6 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * 페이지 라우팅 Controller
+ * Thymeleaf 템플릿을 반환하는 역할
+ */
 @Controller
 @RequiredArgsConstructor
 public class PageController {
@@ -22,12 +26,20 @@ public class PageController {
         return "index";
     }
 
+    // "http://localhost:8080/chat" 채팅 페이지
+    @GetMapping("/chat")
+    public String chat() {
+        return "ai-chat/chat";
+    }
+
+    // "http://localhost:8080/login" 로그인 페이지
     @GetMapping("/login")
     public String login(@AuthenticationPrincipal Object principal, Model model) {
         injectUser(principal, model);
         return "login";
     }
 
+    // "http://localhost:8080/signup" 회원가입 페이지
     @GetMapping("/signup")
     public String signup(@AuthenticationPrincipal Object principal, Model model) {
         injectUser(principal, model);
