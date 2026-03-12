@@ -1,0 +1,321 @@
+/* ===========================
+   마이페이지 팝업
+=========================== */
+
+/* 오버레이 */
+#mypage-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    transition: opacity var(--transition);
+}
+
+#mypage-overlay.active {
+    display: block;
+}
+
+/* 팝업 */
+#mypage-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.96);
+    z-index: 201;
+    width: 100%;
+    max-width: 680px;
+    max-height: 80vh;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    flex-direction: column;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#mypage-modal.active {
+    display: flex;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* 헤더 */
+#mypage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+#mypage-header > h2 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+#mypage-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition);
+    font-family: inherit;
+}
+
+#mypage-close:hover {
+    color: var(--text-primary);
+    background: var(--accent-light);
+}
+
+/* 바디 */
+#mypage-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* 사이드바 */
+#mypage-sidebar {
+    width: 160px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: var(--bg-primary);
+    transition: background-color var(--transition);
+}
+
+.mypage-menu {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: inherit;
+    transition: all var(--transition);
+    width: 100%;
+}
+
+.mypage-menu:hover {
+    color: var(--text-primary);
+    background: var(--accent-light);
+}
+
+.mypage-menu.active {
+    color: var(--text-primary);
+    background: var(--accent-light);
+    font-weight: 600;
+}
+
+/* 콘텐츠 */
+#mypage-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* 탭 */
+.mypage-tab {
+    display: none;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.mypage-tab.active {
+    display: flex;
+}
+
+.mypage-tab > h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+/* 내 정보 */
+.info-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.info-value {
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+}
+
+.info-plan {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.plan-upgrade-btn {
+    padding: 0.375rem 0.875rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: background-color var(--transition);
+    text-decoration: none;
+}
+
+.plan-upgrade-btn:hover {
+    background: var(--accent-hover);
+    color: var(--bg-primary);
+}
+
+/* 비밀번호 변경 폼 */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.form-group > label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-group > input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition), background-color var(--transition);
+    outline: none;
+}
+
+.form-group > input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group > input:focus {
+    border-color: var(--accent);
+}
+
+/* 필드 메시지 */
+.field-msg {
+    font-size: 0.8125rem;
+    min-height: 1rem;
+}
+
+.field-msg.success { color: #27ae60; }
+.field-msg.error   { color: #c0392b; }
+
+[data-theme="dark"] .field-msg.success { color: #5dbb7a; }
+[data-theme="dark"] .field-msg.error   { color: #e07070; }
+
+/* 에러/성공 메시지 박스 */
+#password-error,
+#password-success {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+}
+
+#password-error {
+    background: #fff0f0;
+    border: 1px solid #ffd0d0;
+    color: #c0392b;
+}
+
+#password-success {
+    background: #f0fff4;
+    border: 1px solid #b7f5c8;
+    color: #27ae60;
+}
+
+[data-theme="dark"] #password-error {
+    background: #2a1a1a;
+    border-color: #5a2a2a;
+    color: #e07070;
+}
+
+[data-theme="dark"] #password-success {
+    background: #1a2a1a;
+    border-color: #2a5a2a;
+    color: #5dbb7a;
+}
+
+/* 비밀번호 변경 버튼 */
+#update-password-btn {
+    width: 100%;
+    padding: 0.8125rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background-color var(--transition), transform var(--transition);
+    margin-top: 0.25rem;
+}
+
+#update-password-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+#update-password-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    #mypage-modal {
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        top: 0;
+        left: 0;
+        transform: none;
+    }
+
+    #mypage-modal.active {
+        transform: none;
+    }
+
+    #mypage-sidebar {
+        width: 120px;
+    }
+}
