@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROMPT 관리자 - 플랜/정책</title>
+    <link rel="stylesheet" href="../../static/css/reset.css">
+    <link rel="stylesheet" href="../../static/css/admin_common.css">
+    <link rel="stylesheet" href="../../static/css/policies.css">
+</head>
+<body>
+
+<div th:replace="admin/fragments/header :: header"></div>
+<div th:replace="admin/fragments/sidebar :: sidebar('policies')"></div>
+
+<!-- 메인 영역 -->
+<main id="content">
+    <!-- 페이지 제목 -->
+    <section id="page-header">
+        <h1>플랜 / 정책</h1>
+        <p>플랜별 제공 범위와 사용 제한 정책 관리</p>
+    </section>
+
+    <!-- 상단 요약 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>정책 안내</h2>
+        </div>
+
+        <div class="panel-body">
+            <div id="policy-summary">
+                <div class="summary-box">
+                    <h3>관리 대상</h3>
+                    <p>NORMAL, PRO, MAX 플랜별 사용 정책을 관리합니다.</p>
+                </div>
+
+                <div class="summary-box">
+                    <h3>정책 항목</h3>
+                    <p>채팅 수, 이미지 업로드 수, 파일 업로드 수, 파일 용량 제한 등을 설정합니다.</p>
+                </div>
+
+                <div class="summary-box">
+                    <h3>주의 사항</h3>
+                    <p>정책 변경 시 사용자 서비스 이용 범위에 직접 영향을 줄 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 플랜 카드 -->
+    <section id="plan-grid">
+        <!-- NORMAL -->
+        <section class="panel plan-card">
+            <div class="panel-header">
+                <h2>NORMAL 플랜</h2>
+            </div>
+
+            <div class="panel-body">
+                <ul class="policy-list">
+                    <li>
+                        <span class="label">일일 채팅 제한</span>
+                        <span class="value">20회</span>
+                    </li>
+                    <li>
+                        <span class="label">이미지 업로드 제한</span>
+                        <span class="value">5개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 업로드 제한</span>
+                        <span class="value">3개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 최대 용량</span>
+                        <span class="value">10MB</span>
+                    </li>
+                    <li>
+                        <span class="label">월간 토큰 한도</span>
+                        <span class="value">50,000</span>
+                    </li>
+                </ul>
+
+                <div class="button-area">
+                    <button type="button" class="btn btn-edit">수정</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRO -->
+        <section class="panel plan-card">
+            <div class="panel-header">
+                <h2>PRO 플랜</h2>
+            </div>
+
+            <div class="panel-body">
+                <ul class="policy-list">
+                    <li>
+                        <span class="label">일일 채팅 제한</span>
+                        <span class="value">100회</span>
+                    </li>
+                    <li>
+                        <span class="label">이미지 업로드 제한</span>
+                        <span class="value">20개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 업로드 제한</span>
+                        <span class="value">10개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 최대 용량</span>
+                        <span class="value">50MB</span>
+                    </li>
+                    <li>
+                        <span class="label">월간 토큰 한도</span>
+                        <span class="value">300,000</span>
+                    </li>
+                </ul>
+
+                <div class="button-area">
+                    <button type="button" class="btn btn-edit">수정</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAX -->
+        <section class="panel plan-card">
+            <div class="panel-header">
+                <h2>MAX 플랜</h2>
+            </div>
+
+            <div class="panel-body">
+                <ul class="policy-list">
+                    <li>
+                        <span class="label">일일 채팅 제한</span>
+                        <span class="value">무제한</span>
+                    </li>
+                    <li>
+                        <span class="label">이미지 업로드 제한</span>
+                        <span class="value">50개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 업로드 제한</span>
+                        <span class="value">30개</span>
+                    </li>
+                    <li>
+                        <span class="label">파일 최대 용량</span>
+                        <span class="value">100MB</span>
+                    </li>
+                    <li>
+                        <span class="label">월간 토큰 한도</span>
+                        <span class="value">1,000,000</span>
+                    </li>
+                </ul>
+
+                <div class="button-area">
+                    <button type="button" class="btn btn-edit">수정</button>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- 하단 정책 테이블 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>플랜 비교표</h2>
+        </div>
+
+        <div class="panel-body">
+            <div id="table-wrapper">
+                <table id="policy-table">
+                    <thead>
+                        <tr>
+                            <th>항목</th>
+                            <th>NORMAL</th>
+                            <th>PRO</th>
+                            <th>MAX</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>일일 채팅 제한</td>
+                            <td>20회</td>
+                            <td>100회</td>
+                            <td>무제한</td>
+                        </tr>
+                        <tr>
+                            <td>이미지 업로드 제한</td>
+                            <td>5개</td>
+                            <td>20개</td>
+                            <td>50개</td>
+                        </tr>
+                        <tr>
+                            <td>파일 업로드 제한</td>
+                            <td>3개</td>
+                            <td>10개</td>
+                            <td>30개</td>
+                        </tr>
+                        <tr>
+                            <td>파일 최대 용량</td>
+                            <td>10MB</td>
+                            <td>50MB</td>
+                            <td>100MB</td>
+                        </tr>
+                        <tr>
+                            <td>월간 토큰 한도</td>
+                            <td>50,000</td>
+                            <td>300,000</td>
+                            <td>1,000,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

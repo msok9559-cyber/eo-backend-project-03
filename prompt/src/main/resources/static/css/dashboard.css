@@ -1,0 +1,154 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6f8;
+    color: #000;
+}
+
+/* 메인 영역 */
+#content {
+    margin-top: 100px;
+    margin-left: 220px;
+    padding: 24px;
+    min-height: calc(100vh - 70px);
+    background-color: #f5f6f8;
+}
+
+/* 요약 카드 */
+#dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.card > h3 {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.card > p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #222;
+}
+
+/* 상세 패널 */
+#dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.panel {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.full-width {
+    grid-column: 1 / 3;
+}
+
+.panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #fafafa;
+}
+
+.panel-header > h2 {
+    font-size: 18px;
+    color: #222;
+}
+
+.panel-body {
+    padding: 20px;
+}
+
+.summary-list {
+    list-style: none;
+}
+
+.summary-list > li {
+    font-size: 15px;
+    color: #444;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.summary-list > li:last-child {
+    border-bottom: none;
+}
+
+/* 테이블 */
+#admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#admin-table > thead > tr > th {
+    background-color: #f9fafb;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#admin-table > tbody > tr > td {
+    font-size: 14px;
+    color: #444;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#admin-table > tbody > tr:hover {
+    background-color: #fafcff;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+    body > #content > #dashboard-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    body > #content > #dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body > #content > #dashboard-grid > .full-width {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    body > #sidebar {
+        width: 180px;
+    }
+
+    body > #content {
+        margin-left: 180px;
+        padding: 16px;
+    }
+
+    body > #content > #dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    body > #topbar {
+        padding: 0 16px;
+    }
+
+    body > #topbar > #topbar-left > a {
+        font-size: 18px;
+    }
+}

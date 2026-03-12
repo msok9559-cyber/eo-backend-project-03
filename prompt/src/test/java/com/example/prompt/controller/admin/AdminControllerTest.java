@@ -4,6 +4,8 @@ import com.example.prompt.dto.admin.AdminDto;
 import com.example.prompt.dto.admin.AdminUserDetailDto;
 import com.example.prompt.dto.admin.AdminUserDto;
 import com.example.prompt.dto.admin.DashboardDto;
+import com.example.prompt.dto.user.UserDto;
+import com.example.prompt.security.CustomUserDetails;
 import com.example.prompt.service.AdminService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -160,14 +164,23 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.data.locked").value(false));
     }
 
+    private Authentication adminAuthentication() {
+        return new UsernamePasswordAuthenticationToken(
+                "admin1",
+                null
+        );
+    }
+
     /**
      * 관리자 회원 잠금 처리 테스트
      *
      */
     @Test
     void lock_user_success() throws Exception {
-        mockMvc.perform(patch("/api/admin/auth/users/1/lock"))
-                .andExpect(status().isOk());
+        mockMvc.perform(
+                patch("/api/admin/auth/users/1/lock")
+                        .principal(adminAuthentication())
+        ).andExpect(status().isOk());
     }
 
     /**
@@ -175,8 +188,10 @@ class AdminControllerTest {
      */
     @Test
     void unlock_user_success() throws Exception {
-        mockMvc.perform(patch("/api/admin/auth/users/1/unlock"))
-                .andExpect(status().isOk());
+        mockMvc.perform(
+                patch("/api/admin/auth/users/1/unlock")
+                        .principal(adminAuthentication())
+        ).andExpect(status().isOk());
     }
 
     /**
@@ -184,8 +199,10 @@ class AdminControllerTest {
      */
     @Test
     void activate_user_success() throws Exception {
-        mockMvc.perform(patch("/api/admin/auth/users/1/activate"))
-                .andExpect(status().isOk());
+        mockMvc.perform(
+                patch("/api/admin/auth/users/1/activate")
+                        .principal(adminAuthentication())
+        ).andExpect(status().isOk());
     }
 
     /**
@@ -193,7 +210,9 @@ class AdminControllerTest {
      */
     @Test
     void deactivate_user_success() throws Exception {
-        mockMvc.perform(patch("/api/admin/auth/users/1/deactivate"))
-                .andExpect(status().isOk());
+        mockMvc.perform(
+                patch("/api/admin/auth/users/1/deactivate")
+                        .principal(adminAuthentication())
+        ).andExpect(status().isOk());
     }
 }

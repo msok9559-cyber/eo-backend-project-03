@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROMPT 관리자 - 처리 이력</title>
+    <link rel="stylesheet" href="../../static/css/reset.css">
+    <link rel="stylesheet" href="../../static/css/admin_common.css">
+    <link rel="stylesheet" href="../../static/css/logs.css">
+</head>
+<body>
+
+<div th:replace="admin/fragments/header :: header"></div>
+<div th:replace="admin/fragments/sidebar :: sidebar('logs')"></div>
+
+<!-- 메인 영역 -->
+<main id="content">
+    <!-- 페이지 제목 -->
+    <section class="page-header">
+        <h1>처리 이력</h1>
+        <p>관리자 처리 내역 및 활동 기록 조회</p>
+    </section>
+
+    <!-- 검색 / 필터 영역 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>검색 조건</h2>
+        </div>
+
+        <div class="panel-body">
+            <form id="search-form" action="/admin/logs" method="get">
+                <div id="search-grid">
+                    <div class="form-group">
+                        <label for="admin-id">관리자 아이디</label>
+                        <input type="text" id="admin-id" name="adminId" placeholder="관리자 아이디를 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="action-type">처리 유형</label>
+                        <select id="action-type" name="actionType">
+                            <option value="">전체</option>
+                            <option value="LOCK">잠금 처리</option>
+                            <option value="UNLOCK">잠금 해제</option>
+                            <option value="DELETE">탈퇴 처리</option>
+                            <option value="RESTORE">복구 처리</option>
+                            <option value="PLAN_CHANGE">플랜 변경</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start-date">시작일</label>
+                        <input type="date" id="start-date" name="startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-date">종료일</label>
+                        <input type="date" id="end-date" name="endDate">
+                    </div>
+                </div>
+
+                <div id="button-area">
+                    <button type="submit" class="btn btn-primary">검색</button>
+                    <button type="reset" class="btn btn-secondary">초기화</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- 처리 이력 목록 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>처리 이력 목록</h2>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-wrapper">
+                <table id="admin-table">
+                    <thead>
+                        <tr>
+                            <th>로그번호</th>
+                            <th>관리자 아이디</th>
+                            <th>대상 회원번호</th>
+                            <th>처리 유형</th>
+                            <th>설명</th>
+                            <th>처리일시</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>101</td>
+                            <td>admin01</td>
+                            <td>12</td>
+                            <td><span class="log-type lock">잠금 처리</span></td>
+                            <td>정책 위반으로 계정 잠금 처리</td>
+                            <td>2026-03-11 10:20</td>
+                        </tr>
+
+                        <tr>
+                            <td>102</td>
+                            <td>admin01</td>
+                            <td>15</td>
+                            <td><span class="log-type unlock">잠금 해제</span></td>
+                            <td>관리자 확인 후 잠금 해제</td>
+                            <td>2026-03-11 11:05</td>
+                        </tr>
+
+                        <tr>
+                            <td>103</td>
+                            <td>admin02</td>
+                            <td>20</td>
+                            <td><span class="log-type delete">탈퇴 처리</span></td>
+                            <td>사용자 요청에 따른 계정 삭제 처리</td>
+                            <td>2026-03-10 16:40</td>
+                        </tr>
+
+                        <tr>
+                            <td>104</td>
+                            <td>admin03</td>
+                            <td>7</td>
+                            <td><span class="log-type restore">복구 처리</span></td>
+                            <td>탈퇴 계정 복구 요청 승인</td>
+                            <td>2026-03-10 18:10</td>
+                        </tr>
+
+                        <tr>
+                            <td>105</td>
+                            <td>admin02</td>
+                            <td>31</td>
+                            <td><span class="log-type plan">플랜 변경</span></td>
+                            <td>NORMAL 에서 PRO 로 플랜 변경</td>
+                            <td>2026-03-09 14:25</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이징 -->
+            <div id="pagination">
+                <button type="button" class="page-btn">이전</button>
+                <button type="button" class="page-btn active">1</button>
+                <button type="button" class="page-btn">2</button>
+                <button type="button" class="page-btn">3</button>
+                <button type="button" class="page-btn">다음</button>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,13 +1,15 @@
 package com.example.prompt.controller.user;
 
+import com.example.prompt.dto.user.ResetPasswordDto;
 import com.example.prompt.dto.user.UserDto;
 import com.example.prompt.security.CustomUserDetails;
 import com.example.prompt.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -37,7 +39,7 @@ public class UserController {
     @PatchMapping("/api/user/reset-password")
     public ResponseEntity<Map<String, Object>> resetPassword(
             @RequestParam String email,
-            @RequestBody UserDto dto) {
+            @RequestBody @Valid ResetPasswordDto dto) {
         userService.resetPassword(email, dto);
         return ResponseEntity.ok(Map.of("success", true, "message", "비밀번호가 변경되었습니다"));
     }
@@ -48,6 +50,21 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserDto dto = userService.getMyInfo(userDetails.getId());
         return ResponseEntity.ok(dto);
+    }
+
+    // 비밀번호 변경 (세션 로그인 사용자용)
+    @PatchMapping("/mypage/password")
+    public ResponseEntity<Map<String, Object>> updatePasswordSession(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UserDto dto,
+            HttpServletRequest request) {
+        userService.updatePassword(userDetails.getId(), dto);
+        // 비밀번호 변경 후 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return ResponseEntity.ok(Map.of("success", true, "message", "비밀번호가 변경되었습니다"));
     }
 
     // 비밀번호 변경

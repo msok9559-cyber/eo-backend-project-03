@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside id="sidebar" th:fragment="sidebar(menu)">
+    <nav>
+        <ul>
+            <li th:classappend="${menu == 'dashboard'} ? 'active'">
+                <a href="/admin">대시보드</a>
+            </li>
+            <li th:classappend="${menu == 'users'} ? 'active'">
+                <a href="/admin/users">사용자 관리</a>
+            </li>
+            <li th:classappend="${menu == 'logs'} ? 'active'">
+                <a href="/admin/logs">처리 이력</a>
+            </li>
+            <li th:classappend="${menu == 'policies'} ? 'active'">
+                <a href="/admin/policies">플랜/정책</a>
+            </li>
+            <li th:classappend="${menu == 'stats'} ? 'active'">
+                <a href="/admin/stats">사용량/통계</a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+</body>
+</html>

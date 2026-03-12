@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROMPT 관리자 - 대시 보드</title>
+    <link rel="stylesheet" href="../../static/css/reset.css">
+    <link rel="stylesheet" href="../../static/css/admin_common.css">
+    <link rel="stylesheet" href="../../static/css/dashboard.css">
+</head>
+<body>
+
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar('users')"></div>
+
+    <!-- 메인 영역 -->
+    <main id="content">
+        <!-- 요약 카드 -->
+        <section id="dashboard-cards">
+            <div class="card">
+                <h3>전체 회원 수</h3>
+                <p>9999명</p>
+            </div>
+
+            <div class="card">
+                <h3>활성 회원</h3>
+                <p>9000명</p>
+            </div>
+
+            <div class="card">
+                <h3>잠금 회원</h3>
+                <p>35명</p>
+            </div>
+
+            <div class="card">
+                <h3>NORMAL 플랜</h3>
+                <p>5000명</p>
+            </div>
+
+            <div class="card">
+                <h3>PRO 플랜</h3>
+                <p>3000명</p>
+            </div>
+
+            <div class="card">
+                <h3>MAX 플랜</h3>
+                <p>1000명</p>
+            </div>
+
+            <div class="card">
+                <h3>오늘 가입자 수</h3>
+                <p>120명</p>
+            </div>
+        </section>
+
+        <!-- 대시보드 상세 영역 -->
+        <section id="dashboard-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>플랜별 사용자 현황</h2>
+                </div>
+
+                <div class="panel-body">
+                    <ul class="summary-list">
+                        <li>NORMAL : 5000명</li>
+                        <li>PRO : 3000명</li>
+                        <li>MAX : 1000명</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>전체 사용량 요약</h2>
+                </div>
+
+                <div class="panel-body">
+                    <ul class="summary-list">
+                        <li>총 채팅 수 : 32000</li>
+                        <li>총 이미지 업로드 수 : 5400</li>
+                        <li>총 파일 업로드 수 : 2100</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel full-width">
+                <div class="panel-header">
+                    <h2>최근 가입 사용자</h2>
+                </div>
+
+                <div class="panel-body">
+                    <table id="admin-table">
+                        <thead>
+                            <tr>
+                                <th>회원번호</th>
+                                <th>아이디</th>
+                                <th>플랜</th>
+                                <th>상태</th>
+                                <th>가입일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>user01</td>
+                                <td>NORMAL</td>
+                                <td>활성</td>
+                                <td>2026-03-11</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>user02</td>
+                                <td>PRO</td>
+                                <td>활성</td>
+                                <td>2026-03-11</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>user03</td>
+                                <td>MAX</td>
+                                <td>잠금</td>
+                                <td>2026-03-10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

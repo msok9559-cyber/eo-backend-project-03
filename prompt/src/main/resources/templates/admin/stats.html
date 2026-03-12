@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROMPT 관리자 - 사용량 / 통계</title>
+    <link rel="stylesheet" href="../../static/css/reset.css">
+    <link rel="stylesheet" href="../../static/css/admin_common.css">
+    <link rel="stylesheet" href="../../static/css/stats.css">
+</head>
+<body>
+
+<div th:replace="admin/fragments/header :: header"></div>
+<div th:replace="admin/fragments/sidebar :: sidebar('stats')"></div>
+
+<!-- 메인 영역 -->
+<main id="content">
+    <!-- 페이지 제목 -->
+    <section id="page-header">
+        <h1>사용량 / 통계</h1>
+        <p>서비스 전체 사용량과 플랜별 통계를 조회합니다.</p>
+    </section>
+
+    <!-- 검색 / 기간 필터 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>조회 조건</h2>
+        </div>
+
+        <div class="panel-body">
+            <form id="search-form" action="/admin/stats" method="get">
+                <div id="search-grid">
+                    <div class="form-group">
+                        <label for="period-type">조회 기준</label>
+                        <select id="period-type" name="periodType">
+                            <option value="daily">일간</option>
+                            <option value="weekly">주간</option>
+                            <option value="monthly">월간</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start-date">시작일</label>
+                        <input type="date" id="start-date" name="startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-date">종료일</label>
+                        <input type="date" id="end-date" name="endDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="plan-type">플랜</label>
+                        <select id="plan-type" name="planType">
+                            <option value="">전체</option>
+                            <option value="NORMAL">NORMAL</option>
+                            <option value="PRO">PRO</option>
+                            <option value="MAX">MAX</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="button-area">
+                    <button type="submit" class="btn btn-primary">검색</button>
+                    <button type="reset" class="btn btn-secondary">초기화</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- 요약 카드 -->
+    <section id="stats-card-grid">
+        <div class="stats-card">
+            <h3>총 채팅 수</h3>
+            <p>32,000</p>
+        </div>
+
+        <div class="stats-card">
+            <h3>총 이미지 업로드 수</h3>
+            <p>5,400</p>
+        </div>
+
+        <div class="stats-card">
+            <h3>총 파일 업로드 수</h3>
+            <p>2,100</p>
+        </div>
+
+        <div class="stats-card">
+            <h3>총 사용 토큰량</h3>
+            <p>1,250,000</p>
+        </div>
+    </section>
+
+    <!-- 플랜별 사용량 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>플랜별 사용량 요약</h2>
+        </div>
+
+        <div class="panel-body">
+            <table id="stats-table">
+                <thead>
+                    <tr>
+                        <th>플랜</th>
+                        <th>가입자 수</th>
+                        <th>채팅 수</th>
+                        <th>이미지 업로드 수</th>
+                        <th>파일 업로드 수</th>
+                        <th>사용 토큰량</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>NORMAL</td>
+                        <td>5,000</td>
+                        <td>15,000</td>
+                        <td>2,000</td>
+                        <td>800</td>
+                        <td>300,000</td>
+                    </tr>
+                    <tr>
+                        <td>PRO</td>
+                        <td>3,000</td>
+                        <td>10,000</td>
+                        <td>2,300</td>
+                        <td>900</td>
+                        <td>450,000</td>
+                    </tr>
+                    <tr>
+                        <td>MAX</td>
+                        <td>1,000</td>
+                        <td>7,000</td>
+                        <td>1,100</td>
+                        <td>400</td>
+                        <td>500,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 기간별 통계 -->
+    <section class="panel">
+        <div class="panel-header">
+            <h2>기간별 통계</h2>
+        </div>
+
+        <div class="panel-body">
+            <table id="stats-table-detail">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>신규 가입자 수</th>
+                        <th>채팅 수</th>
+                        <th>이미지 업로드 수</th>
+                        <th>파일 업로드 수</th>
+                        <th>사용 토큰량</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>2026-03-11</td>
+                        <td>120</td>
+                        <td>1,450</td>
+                        <td>230</td>
+                        <td>90</td>
+                        <td>52,000</td>
+                    </tr>
+                    <tr>
+                        <td>2026-03-10</td>
+                        <td>98</td>
+                        <td>1,320</td>
+                        <td>210</td>
+                        <td>75</td>
+                        <td>48,500</td>
+                    </tr>
+                    <tr>
+                        <td>2026-03-09</td>
+                        <td>110</td>
+                        <td>1,510</td>
+                        <td>240</td>
+                        <td>86</td>
+                        <td>54,300</td>
+                    </tr>
+                    <tr>
+                        <td>2026-03-08</td>
+                        <td>88</td>
+                        <td>1,180</td>
+                        <td>190</td>
+                        <td>64</td>
+                        <td>42,800</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination">
+            <button type="button" class="page-btn">이전</button>
+            <button type="button" class="page-btn active">1</button>
+            <button type="button" class="page-btn">2</button>
+            <button type="button" class="page-btn">3</button>
+            <button type="button" class="page-btn">다음</button>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -35,7 +35,10 @@ public class UserDto {
     @Size(min = 8, message = "비밀번호는 8자 이상 입력해주세요")
     private String password;
 
-    // 비밀번호 확인 (회원가입/비번변경 시 사용)
+    // 현재 비밀번호 (비밀번호 변경 시 사용)
+    private String currentPassword;
+
+    // 비밀번호 확인 (회원가입/비번재설정 시 사용)
     private String passwordConfirm;
 
     @NotBlank(message = "이메일을 입력해주세요")

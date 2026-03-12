@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROMPT 관리자 - 사용자 관리</title>
+    <link rel="stylesheet" href="../../static/css/reset.css">
+    <link rel="stylesheet" href="../../static/css/admin_common.css">
+    <link rel="stylesheet" href="../../static/css/users.css">
+</head>
+<body>
+
+    <div th:replace="admin/fragments/header :: header"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar('users')"></div>
+
+    <!-- 메인 영역 -->
+    <main id="content">
+        <!-- 페이지 제목 -->
+        <section class="page-header">
+            <h1>사용자 관리</h1>
+            <p>회원 목록 조회 및 상태 관리</p>
+        </section>
+
+        <!-- 검색 / 필터 영역 -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>검색 조건</h2>
+            </div>
+
+            <div class="panel-body">
+                <form id="search-form" action="/admin/users" method="get">
+                    <div class="search-grid">
+                        <div class="form-group">
+                            <label for="keyword">아이디 검색</label>
+                            <input type="text" id="keyword" name="keyword" placeholder="아이디를 입력하세요">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="plan">플랜</label>
+                            <select id="plan" name="plan">
+                                <option value="">전체</option>
+                                <option value="NORMAL">NORMAL</option>
+                                <option value="PRO">PRO</option>
+                                <option value="MAX">MAX</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">상태</label>
+                            <select id="status" name="status">
+                                <option value="">전체</option>
+                                <option value="ACTIVE">활성</option>
+                                <option value="LOCKED">잠금</option>
+                                <option value="DELETED">탈퇴</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sort">정렬</label>
+                            <select id="sort" name="sort">
+                                <option value="latest">최신 가입순</option>
+                                <option value="oldest">오래된 가입순</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="button-area">
+                        <button type="submit" class="btn btn-primary">검색</button>
+                        <button type="reset" class="btn btn-secondary">초기화</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 사용자 목록 -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>사용자 목록</h2>
+            </div>
+
+            <div class="panel-body">
+                <div class="table-wrapper">
+                    <table id="admin-table">
+                        <thead>
+                            <tr>
+                                <th>회원번호</th>
+                                <th>아이디</th>
+                                <th>플랜</th>
+                                <th>상태</th>
+                                <th>가입일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>user01</td>
+                                <td>NORMAL</td>
+                                <td><span class="status active">활성</span></td>
+                                <td>2026-03-11</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-action detail-btn">상세</button>
+                                        <button type="button" class="btn-action lock-btn">잠금</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>2</td>
+                                <td>user02</td>
+                                <td>PRO</td>
+                                <td><span class="status locked">잠금</span></td>
+                                <td>2026-03-10</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-action detail-btn">상세</button>
+                                        <button type="button" class="btn-action active-btn">활성화</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>3</td>
+                                <td>user03</td>
+                                <td>MAX</td>
+                                <td><span class="status deleted">탈퇴</span></td>
+                                <td>2026-03-09</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-action detail-btn">상세</button>
+                                        <button type="button" class="btn-action restore-btn">복구</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>4</td>
+                                <td>user04</td>
+                                <td>NORMAL</td>
+                                <td><span class="status active">활성</span></td>
+                                <td>2026-03-08</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-action detail-btn">상세</button>
+                                        <button type="button" class="btn-action lock-btn">잠금</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 -->
+                <div id="pagination">
+                    <button type="button" class="page-btn">이전</button>
+                    <button type="button" class="page-btn active">1</button>
+                    <button type="button" class="page-btn">2</button>
+                    <button type="button" class="page-btn">3</button>
+                    <button type="button" class="page-btn">다음</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

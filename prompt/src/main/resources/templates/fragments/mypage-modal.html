@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="mypage-modal">
+
+    <!-- CSRF -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" id="csrf-token"/>
+
+    <!-- 오버레이 -->
+    <div id="mypage-overlay"></div>
+
+    <!-- 팝업 -->
+    <div id="mypage-modal">
+
+        <!-- 헤더 -->
+        <div id="mypage-header">
+            <h2>마이페이지</h2>
+            <button id="mypage-close" aria-label="닫기">✕</button>
+        </div>
+
+        <!-- 바디 -->
+        <div id="mypage-body">
+
+            <!-- 사이드바 -->
+            <nav id="mypage-sidebar">
+                <button class="mypage-menu active" data-tab="info">내 정보</button>
+                <button class="mypage-menu" data-tab="password">비밀번호 변경</button>
+            </nav>
+
+            <!-- 콘텐츠 -->
+            <div id="mypage-content">
+
+                <!-- 내 정보 탭 -->
+                <div class="mypage-tab active" id="tab-info">
+                    <h3>내 정보</h3>
+                    <div class="info-group">
+                        <span class="info-label">이름</span>
+                        <span class="info-value" th:text="${myInfo != null ? myInfo.username : '-'}"></span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">아이디</span>
+                        <span class="info-value" th:text="${myInfo != null ? myInfo.userid : '-'}"></span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">이메일</span>
+                        <span class="info-value" th:text="${myInfo != null ? myInfo.email : '-'}"></span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">플랜</span>
+                        <div class="info-plan">
+                            <span class="info-value" th:text="${myInfo != null ? myInfo.planName : '-'}"></span>
+                            <a href="/payment" class="plan-upgrade-btn">플랜 업그레이드</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 비밀번호 변경 탭 -->
+                <div class="mypage-tab" id="tab-password">
+                    <h3>비밀번호 변경</h3>
+                    <div class="form-group">
+                        <label for="current-password">현재 비밀번호</label>
+                        <input type="password" id="current-password" placeholder="현재 비밀번호를 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">새 비밀번호</label>
+                        <input type="password" id="new-password" placeholder="새 비밀번호를 입력하세요 (8자 이상)">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password-confirm">새 비밀번호 확인</label>
+                        <input type="password" id="new-password-confirm" placeholder="새 비밀번호를 다시 입력하세요">
+                        <span class="field-msg" id="password-match-msg"></span>
+                    </div>
+
+                    <!-- 에러/성공 메시지 -->
+                    <div id="password-error" style="display:none;">
+                        <span id="password-error-msg"></span>
+                    </div>
+                    <div id="password-success" style="display:none;">
+                        <span id="password-success-msg"></span>
+                    </div>
+
+                    <button type="button" id="update-password-btn">비밀번호 변경</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

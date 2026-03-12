@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6f8;
+    color: #000;
+}
+
+/* 상단 헤더 */
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 99;
+}
+
+#header-left > a {
+    font-size: 20px;
+    font-weight: bold;
+    color: #222;
+    text-decoration: none;
+}
+
+#header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#header-right > span {
+    font-size: 14px;
+    color: #555;
+}
+
+#logout-btn {
+    border: none;
+    background-color: #ff4d4f;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 사이드바 */
+#sidebar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 200px;
+    height: calc(100vh - 70px);
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 24px 16px;
+}
+
+#sidebar > nav > ul {
+    list-style: none;
+}
+
+#sidebar > nav > ul > li {
+    margin-bottom: 12px;
+}
+
+#sidebar > nav > ul > li > a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+#sidebar > nav > ul > li.active > a,
+#sidebar > nav > ul > li > a:hover {
+    background-color: #e8f0ff;
+    color: #2b6df8;
+    font-weight: 600;
+}

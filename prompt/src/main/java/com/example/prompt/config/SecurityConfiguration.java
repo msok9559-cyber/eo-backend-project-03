@@ -92,6 +92,7 @@ class SecurityConfiguration {
                         .requestMatchers(
                                 "/", "/index",
                                 "/login", "/signup",
+                                "/reset-password",
                                 "/payment",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
@@ -100,6 +101,7 @@ class SecurityConfiguration {
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
+                        .requestMatchers("/mypage/password").authenticated()
                         .anyRequest().authenticated()
                 )
                 // Form 로그인

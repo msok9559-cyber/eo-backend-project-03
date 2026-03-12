@@ -1,0 +1,214 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6f8;
+    color: #000;
+}
+
+/* 메인 영역 */
+#content {
+    margin-top: 100px;
+    margin-left: 220px;
+    padding: 24px;
+    min-height: calc(100vh - 70px);
+    background-color: #f5f6f8;
+}
+
+/* 페이지 헤더 */
+#page-header {
+    margin-bottom: 24px;
+}
+
+#page-header > h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+#page-header > p {
+    font-size: 15px;
+    color: #666;
+}
+
+/* 패널 */
+.panel {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #fafafa;
+}
+
+.panel-header > h2 {
+    font-size: 18px;
+    color: #222;
+}
+
+.panel-body {
+    padding: 20px;
+}
+
+/* 상단 요약 */
+#policy-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.summary-box {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.summary-box > h3 {
+    font-size: 16px;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+.summary-box > p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* 플랜 카드 */
+#plan-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.plan-card {
+    margin-bottom: 0;
+}
+
+.policy-list {
+    list-style: none;
+}
+
+.policy-list > li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.policy-list > li:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-size: 14px;
+    color: #555;
+}
+
+.value {
+    font-size: 14px;
+    color: #222;
+    font-weight: 600;
+}
+
+/* 버튼 영역 */
+.button-area {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0;
+    border: none;
+    background: none;
+
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background-color: #2b6df8;
+    color: #fff;
+}
+
+/* 비교표 */
+#table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#policy-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#policy-table > thead > tr > th {
+    background-color: #f9fafb;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#policy-table > tbody > tr > td {
+    font-size: 14px;
+    color: #444;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+#policy-table > tbody > tr:hover {
+    background-color: #fafcff;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+    #content {
+        padding: 20px;
+    }
+
+    #policy-summary {
+        grid-template-columns: 1fr;
+    }
+
+    #plan-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        width: 180px;
+    }
+
+    #content {
+        margin-left: 180px;
+        padding: 16px;
+    }
+
+    #header {
+        padding: 0 16px;
+    }
+
+    #header-left > a {
+        font-size: 18px;
+    }
+
+    #page-header > h1 {
+        font-size: 24px;
+    }
+}

@@ -2,6 +2,7 @@ package com.example.prompt.service;
 
 import com.example.prompt.domain.PlanEntity;
 import com.example.prompt.domain.UserEntity;
+import com.example.prompt.dto.user.ResetPasswordDto;
 import com.example.prompt.dto.user.UserDto;
 import com.example.prompt.repository.PlanRepository;
 import com.example.prompt.repository.UserRepository;
@@ -59,8 +60,8 @@ public class UserService {
         emailService.clearVerified(dto.getEmail());
     }
 
-    // 비밀번호 재설정 3단계
-    public void resetPassword(String email, UserDto dto) {
+    // 비밀번호 재설정
+    public void resetPassword(String email, ResetPasswordDto dto) {
         if (!emailService.isVerified(email)) {
             throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요");
         }
@@ -83,8 +84,11 @@ public class UserService {
         return UserDto.from(user);
     }
 
-    // 비밀 번호 변경 (마이 페이지)
+    // 비밀번호 변경 (마이페이지)
     public void updatePassword(Long userId, UserDto dto) {
+        if (dto.getCurrentPassword() == null || dto.getCurrentPassword().isBlank()) {
+            throw new IllegalArgumentException("현재 비밀번호를 입력해주세요");
+        }
         if (!dto.getPassword().equals(dto.getPasswordConfirm())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
         }
@@ -92,7 +96,7 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
-        if (!passwordEncoder.matches(dto.getUsername(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다");
         }
 
