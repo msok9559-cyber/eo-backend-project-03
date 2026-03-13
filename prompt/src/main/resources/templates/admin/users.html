@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROMPT 관리자 - 사용자 관리</title>
-    <link rel="stylesheet" href="../../static/css/reset.css">
-    <link rel="stylesheet" href="../../static/css/admin_common.css">
-    <link rel="stylesheet" href="../../static/css/users.css">
+    <link rel="stylesheet" th:href="@{/css/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/admin_common.css}">
+    <link rel="stylesheet" th:href="@{/css/users.css}">
 </head>
 <body>
 
@@ -32,7 +32,9 @@
                     <div class="search-grid">
                         <div class="form-group">
                             <label for="keyword">아이디 검색</label>
-                            <input type="text" id="keyword" name="keyword" placeholder="아이디를 입력하세요">
+                            <input type="text" id="keyword" name="keyword"
+                                   th:value="${keyword}"
+                                   placeholder="아이디를 입력하세요">
                         </div>
 
                         <div class="form-group">
@@ -92,58 +94,46 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>user01</td>
-                                <td>NORMAL</td>
-                                <td><span class="status active">활성</span></td>
-                                <td>2026-03-11</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button type="button" class="btn-action detail-btn">상세</button>
-                                        <button type="button" class="btn-action lock-btn">잠금</button>
-                                    </div>
-                                </td>
+                            <tr th:if="${users.content.isEmpty()}">
+                                <td colspan="6">조회된 사용자가 없습니다.</td>
                             </tr>
 
-                            <tr>
-                                <td>2</td>
-                                <td>user02</td>
-                                <td>PRO</td>
-                                <td><span class="status locked">잠금</span></td>
-                                <td>2026-03-10</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button type="button" class="btn-action detail-btn">상세</button>
-                                        <button type="button" class="btn-action active-btn">활성화</button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <tr th:each="user : ${users.content}">
+                                <td th:text="${user.id}">1</td>
+                                <td th:text="${user.userid}">user01</td>
+                                <td th:text="${user.planName}">NORMAL</td>
 
-                            <tr>
-                                <td>3</td>
-                                <td>user03</td>
-                                <td>MAX</td>
-                                <td><span class="status deleted">탈퇴</span></td>
-                                <td>2026-03-09</td>
                                 <td>
-                                    <div class="action-buttons">
-                                        <button type="button" class="btn-action detail-btn">상세</button>
-                                        <button type="button" class="btn-action restore-btn">복구</button>
-                                    </div>
+                                    <span class="status"
+                                          th:classappend="${user.locked} ? ' locked' : (${!user.active} ? ' deleted' : ' active')"
+                                          th:text="${user.locked} ? '잠금' : (${!user.active} ? '탈퇴' : '활성')">
+                                        활성
+                                    </span>
                                 </td>
-                            </tr>
 
-                            <tr>
-                                <td>4</td>
-                                <td>user04</td>
-                                <td>NORMAL</td>
-                                <td><span class="status active">활성</span></td>
-                                <td>2026-03-08</td>
+                                <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">2026-03-11</td>
+
                                 <td>
                                     <div class="action-buttons">
-                                        <button type="button" class="btn-action detail-btn">상세</button>
-                                        <button type="button" class="btn-action lock-btn">잠금</button>
+                                        <button type="button" class="btn-action detail-btn"
+                                                th:onclick="'location.href=\'/admin/users/' + ${user.id} + '\''">
+                                            상세
+                                        </button>
+
+                                        <button type="button" class="btn-action lock-btn"
+                                                th:if="${user.active and !user.locked}">
+                                            잠금
+                                        </button>
+
+                                        <button type="button" class="btn-action active-btn"
+                                                th:if="${user.locked}">
+                                            활성화
+                                        </button>
+
+                                        <button type="button" class="btn-action restore-btn"
+                                                th:if="${!user.active}">
+                                            복구
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -153,11 +143,27 @@
 
                 <!-- 페이징 -->
                 <div id="pagination">
-                    <button type="button" class="page-btn">이전</button>
-                    <button type="button" class="page-btn active">1</button>
-                    <button type="button" class="page-btn">2</button>
-                    <button type="button" class="page-btn">3</button>
-                    <button type="button" class="page-btn">다음</button>
+                    <button type="button" class="page-btn"
+                            th:if="${users.hasPrevious()}"
+                            th:onclick="'location.href=\'/admin/users?page=' + ${users.number - 1} + '&keyword=' + ${keyword} + '\''">
+                        이전
+                    </button>
+
+                    <th:block th:if="${users.totalPages > 0}">
+                        <button type="button" class="page-btn"
+                                th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
+                                th:text="${i + 1}"
+                                th:classappend="${i == users.number} ? ' active'"
+                                th:onclick="'location.href=\'/admin/users?page=' + ${i} + '&keyword=' + ${keyword} + '\''">
+                            1
+                        </button>
+                    </th:block>
+
+                    <button type="button" class="page-btn"
+                            th:if="${users.hasNext()}"
+                            th:onclick="'location.href=\'/admin/users?page=' + ${users.number + 1} + '&keyword=' + ${keyword} + '\''">
+                        다음
+                    </button>
                 </div>
             </div>
         </section>

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROMPT 관리자 - 처리 이력</title>
-    <link rel="stylesheet" href="../../static/css/reset.css">
-    <link rel="stylesheet" href="../../static/css/admin_common.css">
-    <link rel="stylesheet" href="../../static/css/logs.css">
+    <link rel="stylesheet" th:href="@{/css/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/admin_common.css}">
+    <link rel="stylesheet" th:href="@{/css/logs.css}">
 </head>
 <body>
 
@@ -86,49 +86,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>101</td>
-                            <td>admin01</td>
-                            <td>12</td>
-                            <td><span class="log-type lock">잠금 처리</span></td>
-                            <td>정책 위반으로 계정 잠금 처리</td>
-                            <td>2026-03-11 10:20</td>
-                        </tr>
+                        <tr th:each="log : ${logs.content}">
+                            <td th:text="${log.logId}">1</td>
+                            <td th:text="${log.adminId}">admin</td>
+                            <td th:text="${log.targetUserId}">1</td>
 
-                        <tr>
-                            <td>102</td>
-                            <td>admin01</td>
-                            <td>15</td>
-                            <td><span class="log-type unlock">잠금 해제</span></td>
-                            <td>관리자 확인 후 잠금 해제</td>
-                            <td>2026-03-11 11:05</td>
-                        </tr>
+                            <td>
+                                <span class="log-type"
+                                      th:classappend="${log.actionType == 'LOCK'} ? ' lock' :
+                                                       (${log.actionType == 'UNLOCK'} ? ' unlock' :
+                                                       (${log.actionType == 'DELETE'} ? ' delete' :
+                                                       (${log.actionType == 'RESTORE'} ? ' restore' :
+                                                       (${log.actionType == 'PLAN_CHANGE'} ? ' plan' : ''))))"
 
-                        <tr>
-                            <td>103</td>
-                            <td>admin02</td>
-                            <td>20</td>
-                            <td><span class="log-type delete">탈퇴 처리</span></td>
-                            <td>사용자 요청에 따른 계정 삭제 처리</td>
-                            <td>2026-03-10 16:40</td>
-                        </tr>
+                                      th:text="${log.actionType == 'LOCK'} ? '잠금 처리' :
+                                               (${log.actionType == 'UNLOCK'} ? '잠금 해제' :
+                                               (${log.actionType == 'DELETE'} ? '탈퇴 처리' :
+                                               (${log.actionType == 'RESTORE'} ? '복구 처리' :
+                                               (${log.actionType == 'PLAN_CHANGE'} ? '플랜 변경' : ''))))">
+                                </span>
+                            </td>
 
-                        <tr>
-                            <td>104</td>
-                            <td>admin03</td>
-                            <td>7</td>
-                            <td><span class="log-type restore">복구 처리</span></td>
-                            <td>탈퇴 계정 복구 요청 승인</td>
-                            <td>2026-03-10 18:10</td>
-                        </tr>
+                            <td th:text="${log.description}">설명</td>
 
-                        <tr>
-                            <td>105</td>
-                            <td>admin02</td>
-                            <td>31</td>
-                            <td><span class="log-type plan">플랜 변경</span></td>
-                            <td>NORMAL 에서 PRO 로 플랜 변경</td>
-                            <td>2026-03-09 14:25</td>
+                            <td th:text="${#temporals.format(log.createdAt,'yyyy-MM-dd HH:mm')}">
+                                2026-03-11
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -136,11 +119,24 @@
 
             <!-- 페이징 -->
             <div id="pagination">
-                <button type="button" class="page-btn">이전</button>
-                <button type="button" class="page-btn active">1</button>
-                <button type="button" class="page-btn">2</button>
-                <button type="button" class="page-btn">3</button>
-                <button type="button" class="page-btn">다음</button>
+                <button class="page-btn"
+                        th:if="${logs.hasPrevious()}"
+                        th:onclick="'location.href=\'/admin/logs?page=' + ${logs.number - 1} + '\''">
+                    이전
+                </button>
+
+                <button class="page-btn"
+                        th:each="i : ${#numbers.sequence(0, logs.totalPages - 1)}"
+                        th:text="${i + 1}"
+                        th:classappend="${i == logs.number} ? ' active'"
+                        th:onclick="'location.href=\'/admin/logs?page=' + ${i} + '\''">
+                </button>
+
+                <button class="page-btn"
+                        th:if="${logs.hasNext()}"
+                        th:onclick="'location.href=\'/admin/logs?page=' + ${logs.number + 1} + '\''">
+                    다음
+                </button>
             </div>
         </div>
     </section>

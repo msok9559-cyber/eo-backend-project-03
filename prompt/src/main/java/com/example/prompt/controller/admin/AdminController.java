@@ -6,54 +6,27 @@ import com.example.prompt.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
-/**
- * 관리자 API Controller
- * 관리자 인증 담당
- */
-@RestController
-@RequestMapping("/api/admin/auth")
+@Controller
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService adminService;
 
     /**
-     * 관리자 로그인
-     */
-    @PostMapping("/login")
-    public ApiResponse<AdminDto.LoginResponse> login(
-            @Valid @RequestBody AdminDto.LoginRequest request
-    ) {
-        return ApiResponse.ok(adminService.login(request));
-    }
-
-    /**
-     * 관리자 로그아웃
-     */
-    @PostMapping("/logout")
-    public ApiResponse<Void> logout() {
-        return ApiResponse.ok(null);
-    }
-
-    /**
-     * 현재 로그인된 관리자 정보
-     */
-    @GetMapping("/me")
-    public ApiResponse<AdminDto.MeResponse> me(Authentication authentication) {
-        String adminId = (String) authentication.getPrincipal();
-        return ApiResponse.ok(adminService.getMe(adminId));
-    }
-
-    /**
      * 대시보드
      */
-    @GetMapping("/dashboard")
+    @ResponseBody
+    @GetMapping("/api/dashboard")
     public ApiResponse<DashboardDto> getDashboard() {
         return ApiResponse.ok(adminService.getDashboard());
     }
@@ -61,7 +34,8 @@ public class AdminController {
     /**
      * 관리자 회원 목록 조회
      */
-    @GetMapping("/users")
+    @ResponseBody
+    @GetMapping("/api/users")
     public ApiResponse<Page<AdminUserDto>> getUsers(
             @RequestParam(required = false, defaultValue = "") String keyword,
             Pageable pageable
@@ -72,7 +46,8 @@ public class AdminController {
     /**
      * 관리자 회원 상세 조회
      */
-    @GetMapping("/users/{userId}")
+    @ResponseBody
+    @GetMapping("/api/users/{userId}")
     public ApiResponse<AdminUserDetailDto> getUserDetail(@PathVariable Long userId) {
         return ApiResponse.ok(adminService.getUserDetail(userId));
     }
@@ -80,7 +55,8 @@ public class AdminController {
     /**
      * 회원 잠금 (계정 잠금)
      */
-    @PatchMapping("/users/{userId}/lock")
+    @ResponseBody
+    @PatchMapping("/api/users/{userId}/lock")
     public ApiResponse<Void> lockUser(Authentication authentication, @PathVariable Long userId) {
         String adminId = (String) authentication.getPrincipal();
         adminService.lockUser(adminId, userId);
@@ -90,7 +66,8 @@ public class AdminController {
     /**
      * 회원 잠금 해제
      */
-    @PatchMapping("/users/{userId}/unlock")
+    @ResponseBody
+    @PatchMapping("/api/users/{userId}/unlock")
     public ApiResponse<Void> unlockUser(Authentication authentication, @PathVariable Long userId) {
         String adminId = (String) authentication.getPrincipal();
         adminService.unlockUser(adminId, userId);
@@ -100,7 +77,8 @@ public class AdminController {
     /**
      * 회원 활성화
      */
-    @PatchMapping("/users/{userId}/activate")
+    @ResponseBody
+    @PatchMapping("/api/users/{userId}/activate")
     public ApiResponse<Void> activateUser(Authentication authentication, @PathVariable Long userId) {
         String adminId = (String) authentication.getPrincipal();
         adminService.activateUser(adminId, userId);
@@ -110,7 +88,8 @@ public class AdminController {
     /**
      * 회원 비활성화 (탈퇴 처리)
      */
-    @PatchMapping("/users/{userId}/deactivate")
+    @ResponseBody
+    @PatchMapping("/api/users/{userId}/deactivate")
     public ApiResponse<Void> deactivateUser(Authentication authentication, @PathVariable Long userId) {
         String adminId = (String) authentication.getPrincipal();
         adminService.deactivateUser(adminId, userId);
@@ -120,7 +99,8 @@ public class AdminController {
     /**
      * 회원 플랜 변경
      */
-    @PatchMapping("/users/{userId}/plan")
+    @ResponseBody
+    @PatchMapping("/api/users/{userId}/plan")
     public ApiResponse<Void> changeUserPlan(
             Authentication authentication,
             @PathVariable Long userId,
@@ -134,8 +114,77 @@ public class AdminController {
     /**
      * 관리자 처리 이력 조회
      */
-    @GetMapping("/logs")
+    @ResponseBody
+    @GetMapping("/api/logs")
     public ApiResponse<Page<AdminActionLogDto>> getAdminActionLogs(Pageable pageable) {
         return ApiResponse.ok(adminService.getAdminActionLogs(pageable));
     }
+
+    /**
+     * 관리자 대시보드 페이지
+     */
+    @GetMapping
+    public String dashboard(Model model) {
+        DashboardDto dashboard = adminService.getDashboard();
+
+        model.addAttribute("dashboard", dashboard);
+        model.addAttribute(
+                "recentUsers",
+                adminService.searchUsers(
+                        "",
+                        PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
+                ).getContent()
+        );
+
+        return "admin/dashboard";
+    }
+
+    /**
+     * 관리자 로그인 페이지
+     */
+    @GetMapping("/login")
+    public String loginPage() {
+        return "admin/admin-login";
+    }
+
+    /**
+     * 관리자 사용자 관리 페이지
+     */
+    @GetMapping("/users")
+    public String users(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            Model model
+    ) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<AdminUserDto> users = adminService.searchUsers(keyword, pageable);
+
+        model.addAttribute("users", users);
+        model.addAttribute("keyword", keyword);
+
+        return "admin/users";
+    }
+
+    /**
+     * 관리자 처리 이력 페이지
+     */
+    @GetMapping("/logs")
+    public String logs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "") String adminId,
+            @RequestParam(required = false, defaultValue = "") String actionType,
+            Model model
+    ) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<AdminActionLogDto> logs = adminService.getAdminActionLogs(pageable);
+
+        model.addAttribute("logs", logs);
+        model.addAttribute("adminId", adminId);
+        model.addAttribute("actionType", actionType);
+
+        return "admin/logs";
+    }
+
 }

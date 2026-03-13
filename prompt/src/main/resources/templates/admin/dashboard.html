@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROMPT 관리자 - 대시 보드</title>
-    <link rel="stylesheet" href="../../static/css/reset.css">
-    <link rel="stylesheet" href="../../static/css/admin_common.css">
-    <link rel="stylesheet" href="../../static/css/dashboard.css">
+    <link rel="stylesheet" th:href="@{/css/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/admin_common.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 </head>
 <body>
 
     <div th:replace="admin/fragments/header :: header"></div>
-    <div th:replace="admin/fragments/sidebar :: sidebar('users')"></div>
+    <div th:replace="admin/fragments/sidebar :: sidebar('dashboard')"></div>
 
     <!-- 메인 영역 -->
     <main id="content">
@@ -19,37 +19,37 @@
         <section id="dashboard-cards">
             <div class="card">
                 <h3>전체 회원 수</h3>
-                <p>9999명</p>
+                <p th:text="${dashboard.totalUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>활성 회원</h3>
-                <p>9000명</p>
+                <p th:text="${dashboard.activeUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>잠금 회원</h3>
-                <p>35명</p>
+                <p th:text="${dashboard.lockedUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>NORMAL 플랜</h3>
-                <p>5000명</p>
+                <p th:text="${dashboard.normalPlanUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>PRO 플랜</h3>
-                <p>3000명</p>
+                <p th:text="${dashboard.proPlanUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>MAX 플랜</h3>
-                <p>1000명</p>
+                <p th:text="${dashboard.maxPlanUsers} + '명'">정보를 불러오는 중입니다.</p>
             </div>
 
             <div class="card">
                 <h3>오늘 가입자 수</h3>
-                <p>120명</p>
+                <p th:text="${dashboard.todaySignups} + '명'">정보를 불러오는 중입니다.</p>
             </div>
         </section>
 
@@ -62,9 +62,9 @@
 
                 <div class="panel-body">
                     <ul class="summary-list">
-                        <li>NORMAL : 5000명</li>
-                        <li>PRO : 3000명</li>
-                        <li>MAX : 1000명</li>
+                        <li th:text="'NORMAL : ' + ${dashboard.normalPlanUsers} + '명'">정보를 불러오는 중입니다.</li>
+                        <li th:text="'PRO : ' + ${dashboard.proPlanUsers} + '명'">정보를 불러오는 중입니다.</li>
+                        <li th:text="'MAX : ' + ${dashboard.maxPlanUsers} + '명'">정보를 불러오는 중입니다.</li>
                     </ul>
                 </div>
             </div>
@@ -76,9 +76,10 @@
 
                 <div class="panel-body">
                     <ul class="summary-list">
-                        <li>총 채팅 수 : 32000</li>
-                        <li>총 이미지 업로드 수 : 5400</li>
-                        <li>총 파일 업로드 수 : 2100</li>
+                        <li th:text="'총 채팅방 수 : ' + ${dashboard.totalChats}">정보를 불러오는 중입니다.</li>
+                        <li th:text="'총 메시지 수 : ' + ${dashboard.totalMessages}">정보를 불러오는 중입니다.</li>
+                        <li th:text="'총 이미지 업로드 수 : ' + ${dashboard.totalImages}">정보를 불러오는 중입니다.</li>
+                        <li th:text="'총 파일 업로드 수 : ' + ${dashboard.totalFiles}">정보를 불러오는 중입니다.</li>
                     </ul>
                 </div>
             </div>
@@ -99,27 +100,18 @@
                                 <th>가입일</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>user01</td>
-                                <td>NORMAL</td>
-                                <td>활성</td>
-                                <td>2026-03-11</td>
+                            <tr th:if="${#lists.isEmpty(recentUsers)}">
+                                <td colspan="5">최근 가입 사용자가 없습니다.</td>
                             </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>user02</td>
-                                <td>PRO</td>
-                                <td>활성</td>
-                                <td>2026-03-11</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>user03</td>
-                                <td>MAX</td>
-                                <td>잠금</td>
-                                <td>2026-03-10</td>
+
+                            <tr th:each="user : ${recentUsers}">
+                                <td th:text="${user.userId}">확인 필요</td>
+                                <td th:text="${user.loginId}">확인 필요</td>
+                                <td th:text="${user.planName}">확인 필요</td>
+                                <td th:text="${user.locked ? '잠금' : (user.active ? '활성' : '비활성')}">확인 필요</td>
+                                <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">확인 필요</td>
                             </tr>
                         </tbody>
                     </table>
