@@ -101,7 +101,9 @@ class SecurityConfiguration {
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
-                        .requestMatchers("/mypage/password").authenticated()
+                        .requestMatchers("/payment/checkout").authenticated()
+                        .requestMatchers("/payment/verify").authenticated()
+                        .requestMatchers("/mypage/password", "/payment/checkout", "/payment/verify").authenticated()
                         .anyRequest().authenticated()
                 )
                 // Form 로그인

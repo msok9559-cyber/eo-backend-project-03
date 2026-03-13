@@ -4,6 +4,8 @@ import com.example.prompt.dto.user.ResetPasswordDto;
 import com.example.prompt.dto.user.UserDto;
 import com.example.prompt.security.CustomUserDetails;
 import com.example.prompt.service.UserService;
+import com.example.prompt.dto.payment.PaymentDto;
+import com.example.prompt.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -20,6 +22,16 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final PaymentService paymentService;
+
+    // 세션용 결제 검증
+    @PostMapping("/payment/verify")
+    public ResponseEntity<Map<String, Object>> verifyPayment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody PaymentDto dto) {
+        PaymentDto result = paymentService.verifyAndSave(userDetails.getId(), dto);
+        return ResponseEntity.ok(Map.of("success", result.getSuccess(), "message", result.getMessage()));
+    }
 
     // 아이디 체크
     @GetMapping("/api/users/check-id")

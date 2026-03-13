@@ -11,6 +11,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -62,6 +65,16 @@ public class PageController {
         model.addAttribute("plans", plans);
         return "payment";
     }
+
+    @GetMapping("/payment/checkout")
+    public String checkout(@AuthenticationPrincipal Object principal,
+                           @RequestParam String planName,
+                           Model model) {
+        injectUser(principal, model);
+        model.addAttribute("plan", planService.getPlanByName(planName));
+        return "checkout";
+    }
+
 
     // "http://localhost:8080/reset-password" 비밀번호 찾기 페이지
     @GetMapping("/reset-password")
