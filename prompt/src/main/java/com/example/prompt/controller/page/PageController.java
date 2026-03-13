@@ -1,8 +1,10 @@
 package com.example.prompt.controller.page;
 
+import com.example.prompt.domain.PlanEntity;
 import com.example.prompt.dto.user.UserDto;
 import com.example.prompt.security.CustomUserDetails;
 import com.example.prompt.security.CustomOAuth2UserDetails;
+import com.example.prompt.service.PlanService;
 import com.example.prompt.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PageController {
 
     private final UserService userService;
+    private final PlanService planService;
 
     // "http://localhost:8080/" 메인 페이지
     @GetMapping("/")
@@ -55,6 +58,8 @@ public class PageController {
     @GetMapping("/payment")
     public String payment(@AuthenticationPrincipal Object principal, Model model) {
         injectUser(principal, model);
+        List<PlanEntity> plans = planService.getAllPlans();
+        model.addAttribute("plans", plans);
         return "payment";
     }
 

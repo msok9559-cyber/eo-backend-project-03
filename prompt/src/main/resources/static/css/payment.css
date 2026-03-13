@@ -1,0 +1,204 @@
+/* Payment */
+
+#payment {
+    min-height: 100vh;
+    padding: 8rem 2rem 6rem;
+    background: var(--bg-primary);
+    transition: background-color var(--transition);
+}
+
+/* 헤더 */
+#payment-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+#payment-header > h1 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+}
+
+#payment-header > p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* 카드 그리드 */
+#plan-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* 카드 공통 */
+#plan-normal,
+#plan-pro,
+#plan-max {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: all var(--transition);
+}
+
+#plan-normal:hover,
+#plan-pro:hover,
+#plan-max:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+}
+
+/* 현재 플랜 강조 */
+#plan-normal.current,
+#plan-pro.current,
+#plan-max.current {
+    border-color: var(--accent);
+    border-width: 2px;
+}
+
+/* PRO 인기 강조 */
+#plan-pro {
+    border-color: var(--accent);
+}
+
+/* 배지 */
+#plan-normal > div > span,
+#plan-pro > div > span,
+#plan-max > div > span {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+/* 인기 배지는 다른 스타일 */
+#plan-pro > div:first-child > span {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+/* 플랜 이름 */
+#plan-normal > h2,
+#plan-pro > h2,
+#plan-max > h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+/* 가격 */
+#plan-normal > div > strong,
+#plan-pro > div > strong,
+#plan-max > div > strong {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+#plan-pro > div > span,
+#plan-max > div > span {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* 기능 목록 */
+#plan-normal > ul,
+#plan-pro > ul,
+#plan-max > ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    flex: 1;
+}
+
+#plan-normal > ul > li,
+#plan-pro > ul > li,
+#plan-max > ul > li {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    padding-left: 1.25rem;
+    position: relative;
+}
+
+#plan-normal > ul > li::before,
+#plan-pro > ul > li::before,
+#plan-max > ul > li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* 버튼 */
+#plan-normal > button,
+#plan-pro > button,
+#plan-max > button {
+    width: 100%;
+    padding: 0.8125rem;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background-color var(--transition), transform var(--transition);
+    margin-top: auto;
+}
+
+#plan-normal > button:hover:not(:disabled),
+#plan-pro > button:hover:not(:disabled),
+#plan-max > button:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+#plan-normal > button:disabled,
+#plan-pro > button:disabled,
+#plan-max > button:disabled {
+    background: var(--bg-primary);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: default;
+    transform: none;
+}
+
+/* 현재 플랜 버튼은 accent 색 유지 */
+#plan-normal.current > button:disabled,
+#plan-pro.current > button:disabled,
+#plan-max.current > button:disabled {
+    background: var(--accent-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #plan-cards {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+    }
+
+    #payment-header > h1 {
+        font-size: 2rem;
+    }
+}
