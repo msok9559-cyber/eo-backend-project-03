@@ -1,5 +1,6 @@
 package com.example.prompt.dto.alan;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,8 +53,12 @@ public class AlanAiDto {
         @NoArgsConstructor
         @AllArgsConstructor
         public static class Chapter {
+            @JsonProperty("chapter_idx")
             private int chapterIdx;
+
+            @JsonProperty("chapter_title")
             private String chapterTitle;
+
             private List<SubtitleText> text;
         }
 
@@ -72,6 +77,8 @@ public class AlanAiDto {
     @AllArgsConstructor
     public static class YoutubeSubtitleResponse {
         private Summary summary;
+
+        @JsonProperty("token_info")
         private Object tokenInfo;
 
         @Getter
@@ -79,6 +86,8 @@ public class AlanAiDto {
         @AllArgsConstructor
         public static class Summary {
             private List<SummaryChapter> chapters;
+
+            @JsonProperty("total_summary")
             private List<String> totalSummary;
         }
 

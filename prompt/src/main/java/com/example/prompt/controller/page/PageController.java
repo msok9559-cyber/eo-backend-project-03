@@ -36,6 +36,13 @@ public class PageController {
         return "ai-chat/chat";
     }
 
+    // "http://localhost:8080/ai-tools" AI 도구 페이지
+    @GetMapping("/ai-tools")
+    public String aiTools(@AuthenticationPrincipal Object principal, Model model) {
+        injectUser(principal, model);
+        return "ai-chat/ai-tools";
+    }
+
     // "http://localhost:8080/login" 로그인 페이지
     @GetMapping("/login")
     public String login(@AuthenticationPrincipal Object principal, Model model) {
@@ -74,7 +81,6 @@ public class PageController {
         model.addAttribute("plan", planService.getPlanByName(planName));
         return "checkout";
     }
-
 
     // "http://localhost:8080/reset-password" 비밀번호 찾기 페이지
     @GetMapping("/reset-password")

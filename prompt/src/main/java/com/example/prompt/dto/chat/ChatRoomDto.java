@@ -2,10 +2,7 @@ package com.example.prompt.dto.chat;
 
 import com.example.prompt.domain.ChatRoomEntity;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +10,7 @@ public class ChatRoomDto {
 
     // 요청 DTO
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder

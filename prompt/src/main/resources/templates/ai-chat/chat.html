@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
     <title>Prompt AI - Chat</title>
     <link rel="stylesheet" th:href="@{/css/reset.css}">
+    <link rel="stylesheet" th:href="@{/css/ai-common.css}">
     <link rel="stylesheet" th:href="@{/css/chat.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/mypage.js}"></script>
     <script th:src="@{/js/chat.js}" defer></script>
 </head>
 <body>
+
+<!-- 마이페이지 팝업 -->
+<div th:insert="~{fragments/mypage-modal :: mypage-modal}"></div>
 
 <!-- 사이드바 -->
 <aside id="aside">
@@ -24,20 +33,28 @@
         </button>
     </header>
 
+    <!-- AI 도구 버튼 -->
+    <div id="sidebarAiTools">
+        <a th:href="@{/ai-tools}">AI 도구</a>
+    </div>
+
+    <!-- 새 채팅 버튼 -->
     <div id="sidebarNew">
         <button id="btnNew">+ 새 채팅</button>
     </div>
 
+    <!-- 채팅방 목록 -->
     <nav aria-label="채팅 목록">
         <p>Chats</p>
         <ul id="roomList"></ul>
     </nav>
 
-    <!-- aside 하단: footer 대신 div 사용 -->
+    <!-- aside 하단 -->
     <div id="sidebarBottom">
         <div>
             <img src="https://ui-avatars.com/api/?name=User&background=eee&color=333&size=32" alt="프로필 이미지">
-            <span id="userEmail" th:text="${#authentication?.name}">user@example.com</span>
+            <!-- 이름 표시 -->
+            <span id="userEmail" th:text="${myInfo?.username}"></span>
         </div>
 
         <!-- 설정 버튼 (배경 이미지) -->
@@ -46,8 +63,8 @@
         </button>
 
         <ul id="settingsMenu" class="hidden" role="menu" aria-label="설정 메뉴">
-            <li role="none"><button role="menuitem" data-action="profile">마이페이지</button></li>
-            <li role="none"><button role="menuitem" data-action="theme">다크모드/사용자 설정</button></li>
+            <li role="none"><button role="menuitem" class="mypage-open-btn" data-action="profile">마이페이지</button></li>
+            <li role="none"><button role="menuitem" data-action="theme">다크모드</button></li>
             <li role="none"><button role="menuitem" data-action="plan">플랜 업그레이드</button></li>
             <li role="none"><button role="menuitem" data-action="help">도움말</button></li>
         </ul>
@@ -62,7 +79,8 @@
     <div id="empty">
         <div>
             <h1>
-                <span id="greetName" th:text="${#authentication?.name + '님'}">회원님</span>
+                <!-- 이름 표시 -->
+                <span id="greetName" th:text="${myInfo?.username + '님'}">회원님</span>
                 무엇이 궁금하십니까?
             </h1>
             <div class="inputBox">
@@ -71,10 +89,13 @@
                     <span class="srOnly">전송</span>
                 </button>
             </div>
-            <div class="modelSelector" id="emptyModelSelector">
-                <button data-model="alan-4.0" aria-pressed="true">alan-4.0</button>
-                <button data-model="alan-4.1" aria-pressed="false">alan-4.1</button>
-                <button data-model="alan-4-turbo" aria-pressed="false">alan-4-turbo</button>
+            <div class="toolBar">
+                <div class="modelSelector" id="emptyModelSelector">
+                    <button data-model="alan-4.0" aria-pressed="true">alan-4.0</button>
+                    <button data-model="alan-4.1" aria-pressed="false">alan-4.1</button>
+                    <button data-model="alan-4-turbo" aria-pressed="false">alan-4-turbo</button>
+                </div>
+                <a href="/ai-tools" id="btnAiTools">AI 도구</a>
             </div>
         </div>
     </div>
@@ -94,10 +115,13 @@
                     <span class="srOnly">전송</span>
                 </button>
             </div>
-            <div class="modelSelector" id="chatModelSelector">
-                <button data-model="alan-4.0" aria-pressed="true">alan-4.0</button>
-                <button data-model="alan-4.1" aria-pressed="false">alan-4.1</button>
-                <button data-model="alan-4-turbo" aria-pressed="false">alan-4-turbo</button>
+            <div class="toolBar">
+                <div class="modelSelector" id="chatModelSelector">
+                    <button data-model="alan-4.0" aria-pressed="true">alan-4.0</button>
+                    <button data-model="alan-4.1" aria-pressed="false">alan-4.1</button>
+                    <button data-model="alan-4-turbo" aria-pressed="false">alan-4-turbo</button>
+                </div>
+                <a href="/ai-tools" id="btnAiTools">AI 도구</a>
             </div>
         </div>
 
@@ -106,7 +130,7 @@
 </main>
 
 <!-- 토스트 알림 -->
-<div id="toast" role="status" aria-live="polite"></div>
+<div id="toast" role="alert" aria-live="assertive"></div>
 
 </body>
 </html>

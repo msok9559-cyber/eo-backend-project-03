@@ -1,0 +1,296 @@
+/* ai-tools.css - AI 도구 전용 스타일 (공통 사이드바는 ai-common.css 참조) */
+
+/* 이력 타입 뱃지 */
+.historyBadge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background-color: var(--accent-dim);
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* button, textarea 기본 */
+button {
+    font-family: inherit;
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+textarea {
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    border: none;
+    background: none;
+    width: 100%;
+    color: var(--text);
+}
+
+textarea::placeholder { color: var(--text-muted); }
+
+code {
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 12px;
+    background-color: var(--bg-input);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+}
+
+/* 메인 */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 32px 24px;
+    overflow: hidden;
+}
+
+/* 페이지 헤더 */
+#toolsHeader > h1 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+#toolsHeader > p {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* 탭 바 */
+#tabBar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.tabBtn {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-sub);
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    position: relative;
+    bottom: -1px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.tabBtn:hover { color: var(--text); background-color: var(--bg-hover); }
+
+.tabBtn.active {
+    color: var(--accent);
+    font-weight: 600;
+    background-color: var(--bg);
+    border-color: var(--border);
+    border-bottom-color: var(--bg);
+}
+
+/* 패널 */
+.panel {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    overflow-y: auto;
+    align-content: start;
+}
+
+.panel > .toolCard:only-child { grid-column: 1 / -1; }
+
+/* 카드 공통 */
+.toolCard,
+.resultCard {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.resultCard {
+    animation: cardFadeUp 0.22s ease;
+}
+
+@keyframes cardFadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 카드 상단 바 */
+.cardTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.count {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+/* 힌트 텍스트 */
+.hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 8px 14px 0;
+    line-height: 1.5;
+    flex-shrink: 0;
+}
+
+/* textarea */
+.toolCard > textarea {
+    flex: 1;
+    padding: 12px 14px;
+    line-height: 1.65;
+    min-height: 200px;
+}
+
+/* 카드 하단 버튼 영역 */
+.cardBottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    background-color: var(--bg-input);
+    flex-shrink: 0;
+}
+
+.clearBtn {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.clearBtn:hover { color: var(--text); border-color: var(--text-muted); }
+
+.runBtn {
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--accent);
+    border-radius: 8px;
+    transition: background-color 0.15s;
+}
+
+.runBtn:hover    { background-color: #6aa0ff; }
+.runBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 결과 */
+.copyBtn {
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 400;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.copyBtn:hover  { color: var(--accent); border-color: var(--accent); }
+.copyBtn.copied { color: #34c759;       border-color: #34c759; }
+
+.resultText {
+    flex: 1;
+    padding: 14px;
+    line-height: 1.7;
+    font-size: 14px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* 로딩 오버레이 */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+#loadingOverlay > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.loadingDots {
+    display: flex;
+    gap: 8px;
+}
+
+.loadingDots > span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    animation: dotBounce 1.2s infinite ease-in-out;
+}
+
+.loadingDots > span:nth-child(2) { animation-delay: 0.2s; }
+.loadingDots > span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40%           { transform: scale(1.0); opacity: 1; }
+}
+
+#loadingMsg {
+    font-size: 14px;
+    color: var(--text-sub);
+}
+
+/* 토스트 */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 300;
+    white-space: nowrap;
+}
+
+#toast.show       { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.show.error { background-color: var(--danger); }
