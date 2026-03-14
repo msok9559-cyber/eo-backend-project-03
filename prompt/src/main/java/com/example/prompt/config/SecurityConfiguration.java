@@ -40,7 +40,7 @@ class SecurityConfiguration {
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/users/**", "/api/email/**", "/api/admin/**",
-                        "/api/user/**", "/api/payment/**", "/api/alan/**", "/api/stats/**")
+                        "/api/user/**", "/api/payment/**", "/api/stats/**")
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
@@ -94,7 +94,7 @@ class SecurityConfiguration {
                                 "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
-                        .requestMatchers("/chat", "/api/chat/**").authenticated()
+                        .requestMatchers("/chat", "/api/chat/**", "/api/alan/**").authenticated()
                         .requestMatchers(
                                 "/mypage/password",
                                 "/mypage/withdraw",

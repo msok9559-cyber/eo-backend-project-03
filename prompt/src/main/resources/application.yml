@@ -56,7 +56,6 @@ spring:
 
 
 alan:
-  client-id: test-alan-key
   base-url: https://kdt-api-function.azurewebsites.net/api/v1
 
 jwt:
