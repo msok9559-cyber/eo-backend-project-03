@@ -2,8 +2,7 @@
 
 window.addEventListener('DOMContentLoaded', function () {
 
-    // 프로그램에서 참조할 DOM 요소를 미리 변수 선언
-    // 상태 변수 (값이 변할수 있는 변수)
+    // 상태 변수 (상황에 따라 변할수 있는 변수)
     let currentRoomId = null;
     let currentModel  = 'alan-4.0';
     let isStreaming   = false;

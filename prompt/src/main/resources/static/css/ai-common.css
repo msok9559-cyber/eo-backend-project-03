@@ -7,7 +7,7 @@
     --bg-active:    rgba(0, 0, 0, 0.08);
     --border:       rgba(0, 0, 0, 0.1);
     --accent:       #4f8ef7;
-    --accent-dim:   rgba(79, 142, 247, 0.1);
+    --bg-user:      #e8f0fe;
     --text:         #1a1a1a;
     --text-sub:     #666;
     --text-muted:   #aaa;
@@ -40,7 +40,7 @@
     --bg-input:     #222220;
     --bg-hover:     rgba(255, 255, 255, 0.06);
     --bg-active:    rgba(255, 255, 255, 0.1);
-    --border:       rgba(255, 255, 255, 0.1);
+    --bg-user:      #1a2a40;
     --text:         #f0f0ee;
     --text-sub:     #a0a09a;
     --text-muted:   #606060;
