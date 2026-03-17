@@ -69,6 +69,8 @@ dependencies {
 
     // 포트원 (아임포트) 의존성 추가
     implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {

@@ -1,6 +1,7 @@
 package com.example.prompt.client;
 
 import com.example.prompt.dto.alan.AlanAiDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class AlanAiClient {
 
     private final WebClient alanWebClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${alan.client-id}")
     private String clientId;
@@ -41,6 +43,46 @@ public class AlanAiClient {
                 .retrieve()
                 .bodyToFlux(String.class)
                 .doOnError(e -> log.info("streamChat error = {}", e.getMessage()));
+    }
+
+    /**
+     * 일반 질문 (단순 응답, 스트리밍 없음)
+     * GET /api/v1/question?client_id=xxx&content=xxx
+     */
+    public String question(String content) {
+        log.info("일반 질문 요청 - content length = {}", content.length());
+
+        return alanWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/question")
+                        .queryParam("client_id", clientId)
+                        .queryParam("content", content)
+                        .build()
+                )
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnError(e -> log.error("question 오류 = {}", e.getMessage()))
+                .block();
+    }
+
+    /**
+     * 일반 스트리밍 질문 (plain text streaming)
+     * GET /api/v1/question/plain-streaming?client_id=xxx&content=xxx
+     */
+    public Flux<String> plainStreaming(String content) {
+        log.info("plain-streaming 요청 - content length = {}", content.length());
+
+        return alanWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/question/plain-streaming")
+                        .queryParam("client_id", clientId)
+                        .queryParam("content", content)
+                        .build()
+                )
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .doOnError(e -> log.error("plainStreaming 오류 = {}", e.getMessage()));
     }
 
     /**
@@ -98,17 +140,27 @@ public class AlanAiClient {
      * 유튜브 자막 요약
      * POST /api/v1/summary-youtube
      * body: { "subtitle": [...] }
+     *
+     * WebFlux 코덱 역직렬화 문제를 피하기 위해 String으로 받아서 ObjectMapper로 직접 파싱
      */
     public AlanAiDto.YoutubeSubtitleResponse summarizeYoutube(AlanAiDto.YoutubeSubtitleRequest request) {
         log.info("유튜브 자막 요약 요청 - chapters size = {}", request.getSubtitle().size());
 
-        return alanWebClient.post()
+        String raw = alanWebClient.post()
                 .uri("/summary-youtube")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("subtitle", request.getSubtitle()))
                 .retrieve()
-                .bodyToMono(AlanAiDto.YoutubeSubtitleResponse.class)
+                .bodyToMono(String.class)
                 .doOnError(e -> log.error("유튜브 요약 오류 = {}", e.getMessage()))
                 .block();
+
+        try {
+            log.info("유튜브 요약 raw 응답 = {}", raw);
+            return objectMapper.readValue(raw, AlanAiDto.YoutubeSubtitleResponse.class);
+        } catch (Exception e) {
+            log.error("유튜브 요약 응답 파싱 실패 - raw = {}, error = {}", raw, e.getMessage());
+            throw new IllegalStateException("유튜브 요약 응답 파싱 실패: " + e.getMessage());
+        }
     }
 }

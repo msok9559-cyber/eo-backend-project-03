@@ -30,8 +30,33 @@ window.addEventListener('DOMContentLoaded', function () {
     const chatModelBtns  = document.querySelectorAll('#chatModelSelector > button');
     const emptyModelBtns = document.querySelectorAll('#emptyModelSelector > button');
 
-    // 모델 선택
+    // 현재 플랜 읽기 (chat.html의 userEmail span data-plan 속성)
+    const userEmailEl = document.getElementById('userEmail');
+    const currentPlan = userEmailEl ? (userEmailEl.dataset.plan || 'NORMAL') : 'NORMAL';
+
+    // 모델별 필요 플랜
+    const MODEL_PLAN_REQUIRED = {
+        'alan-4.0':     null,
+        'alan-4.1':     ['PRO', 'MAX'],
+        'alan-4-turbo': ['MAX']
+    };
+
+    // 모델별 업그레이드 안내 메시지
+    const MODEL_UPGRADE_MSG = {
+        'alan-4.1':     'alan-4.1 모델은 PRO 또는 MAX 플랜이 필요합니다.\n플랜을 업그레이드 하시겠습니까?',
+        'alan-4-turbo': 'alan-4-turbo 모델은 MAX 플랜이 필요합니다.\n플랜을 업그레이드 하시겠습니까?'
+    };
+
+    // 모델 선택 (플랜 체크 포함)
     function setModel(model) {
+        const required = MODEL_PLAN_REQUIRED[model];
+        if (required && !required.includes(currentPlan)) {
+            const msg = MODEL_UPGRADE_MSG[model] || '현재 플랜에서 사용할 수 없는 모델입니다.';
+            if (confirm(msg)) {
+                window.location.href = '/payment';
+            }
+            return; // 모델 변경하지 않음, 기존 모델 유지
+        }
         currentModel = model;
         Array.prototype.forEach.call(
             document.querySelectorAll('#chatModelSelector > button, #emptyModelSelector > button'),
@@ -203,22 +228,47 @@ window.addEventListener('DOMContentLoaded', function () {
             .catch(function () { showToast('메시지를 불러오지 못했습니다.', true); });
     }
 
-    // DB 저장된 raw content에서 실제 텍스트 추출
+    /**
+     * DB 저장된 content에서 실제 텍스트 추출
+     *
+     * ChatService 수정 후 → 순수 텍스트로 저장되므로 그대로 반환
+     * 수정 전 기존 데이터 → SSE raw 형식이므로 continue 청크에서 텍스트 누적 추출
+     *
+     * 기존 데이터 형식:
+     * {'type': 'continue', 'data': {'content': '안'}}
+     * {'type': 'continue', 'data': {'content': '녕'}}
+     * {'type': 'complete', 'data': {'content': '안녕'}}
+     */
     function parseContent(raw) {
         if (!raw) return '';
 
-        const completeMatch = raw.match(/'type':\s*'complete'.*?'content':\s*'([^']*)'/);
-        if (completeMatch) return completeMatch[1];
+        // SSE 형식이 아니면 순수 텍스트 (새 형식) → 그대로 반환
+        if (!raw.includes("'type': 'continue'")) return raw;
 
-        let result = '';
-        const regex = /'type':\s*'continue'.*?'content':\s*'([^']*)'/g;
-        let match;
-        while ((match = regex.exec(raw)) !== null) {
-            result += match[1];
+        // continue 청크에서 content 텍스트를 하나씩 추출해서 누적
+        // complete 이벤트 이전까지만 처리 (full text에 apostrophe 있으면 파싱 실패 방지)
+        const completeIdx = raw.indexOf("'type': 'complete'");
+        const target      = completeIdx !== -1 ? raw.substring(0, completeIdx) : raw;
+
+        let result     = '';
+        const marker   = "'content': '";
+        let searchFrom = 0;
+
+        while (true) {
+            const keyIdx = target.indexOf(marker, searchFrom);
+            if (keyIdx === -1) break;
+
+            const start  = keyIdx + marker.length;
+            // 닫는 '} 를 역탐색 (continue 청크 단위 내에서 탐색)
+            const chunkEnd = target.indexOf("'}}", start);
+            const end      = chunkEnd !== -1 ? chunkEnd : target.indexOf("'}", start);
+            if (end === -1 || end <= start) { searchFrom = start; continue; }
+
+            result     += target.substring(start, end);
+            searchFrom  = end + 2;
         }
-        if (result) return result;
 
-        return raw;
+        return result || raw;
     }
 
     // 새 채팅 버튼
@@ -335,7 +385,7 @@ window.addEventListener('DOMContentLoaded', function () {
         if (e.key === 'Escape' && isStreaming) stopStreaming();
     }
 
-    // 타이핑 큐 - 한 글자씩 출력 (20ms 간격)
+    // 타이핑 큐 - 한 글자씩 출력 (5ms 간격)
     function typewriterQueue(bubble) {
         let queue    = [];
         let timer    = null;
@@ -350,7 +400,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
             bubble.textContent += queue.shift();
             scrollToBottom();
-            timer = setTimeout(flush, 20);
+            timer = setTimeout(flush, 5);
         }
 
         return {
@@ -410,6 +460,11 @@ window.addEventListener('DOMContentLoaded', function () {
                 aiBubble.classList.remove('waiting');
                 writer.push(e.data);
             }
+        });
+
+        // 토큰 소진 이벤트 - 서버에서 한도 도달 시 전송
+        es.addEventListener('token-exhausted', function (e) {
+            showToast(e.data || '토큰 한도에 도달했습니다. 플랜을 업그레이드 해주세요.', true);
         });
 
         es.addEventListener('error', function () {

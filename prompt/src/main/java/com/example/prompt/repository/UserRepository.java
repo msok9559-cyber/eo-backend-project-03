@@ -1,11 +1,10 @@
 package com.example.prompt.repository;
 
 import com.example.prompt.domain.UserEntity;
-import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,4 +42,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
             String email,
             Pageable pageable
     );
+
+    // 토큰 초기화 스케줄러용: 활성 유저 전체 조회
+    List<UserEntity> findByActiveTrue();
 }

@@ -6,7 +6,7 @@ INSERT INTO plans (plan_name, token_limit, ai_use, price, created_at, updated_at
 VALUES ('PRO', 100000, 1, 9900, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO plans (plan_name, token_limit, ai_use, price, created_at, updated_at)
-VALUES ('MAX', 1000000, 1, 29900, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+VALUES ('MAX', 500000, 1, 29900, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- plan_models
 INSERT INTO plan_models (plan_id, model_name) VALUES (1, 'alan-4.0');

@@ -32,6 +32,9 @@ public class ChatService {
     private final UserRepository userRepository;
     private final PlanModelRepository planModelRepository;
 
+    // Alan AI continue 청크 형식: {'type': 'continue', 'data': {'content': '텍스트'}}
+    private static final String CONTENT_MARKER = "'content': '";
+
     /**
      * 채팅방 생성
      * - 사용자의 플랜에서 해당 모델 사용 가능 여부 검증 후 생성
@@ -81,12 +84,13 @@ public class ChatService {
     }
 
     /**
-     * SSE 스트리밍 메시지 전송 (핵심 기능!)
+     * SSE 스트리밍 메시지 전송
      * 1. 토큰 한도 초과 여부 확인
      * 2. 사용자 메시지 DB 저장
      * 3. 앨런 AI 에 SSE 스트리밍 요청
-     * 4. 글자 chunk 올 때마다 → 브라우저로 실시간 전송
-     * 5. 스트리밍 완료 시 → AI 응답 전체 DB 저장 + 토큰 차감
+     * 4. chunk 도착마다 브라우저로 실시간 전송
+     * 5. 완료 시 순수 텍스트만 DB 저장 + 토큰 차감
+     * 6. 차감 후 한도 도달 시 token-exhausted 이벤트 전송
      */
     public SseEmitter streamMessage(Long chatroomId, Long userId, String content) {
         // 3분 타임아웃 (앨런 AI 응답이 늦어질 경우 대비)
@@ -108,8 +112,8 @@ public class ChatService {
         chatMessageRepository.save(
                 ChatMessageEntity.of(chatroomId, "user", content, 0));
 
-        // AI 응답 전체를 모으기 위한 StringBuilder
-        StringBuilder fullResponse = new StringBuilder();
+        // cleanResponse: continue 청크에서 추출한 순수 텍스트 누적 → DB 저장용
+        StringBuilder cleanResponse = new StringBuilder();
 
         // 2. 앨런 AI 스트리밍 호출
         alanAiClient.streamChat(content)
@@ -117,9 +121,11 @@ public class ChatService {
                         // chunk 도착할 때마다 실행
                         chunk -> {
                             try {
-                                fullResponse.append(chunk);
-                                // 3. 브라우저로 실시간 전송
+                                // 브라우저에는 raw chunk 그대로 전송
                                 emitter.send(SseEmitter.event().data(chunk));
+                                // DB 저장용으로는 순수 텍스트만 추출해서 누적
+                                String text = extractContinueContent(chunk);
+                                if (text != null) cleanResponse.append(text);
                             } catch (IOException e) {
                                 emitter.completeWithError(e);
                             }
@@ -131,19 +137,37 @@ public class ChatService {
                         },
                         // 스트리밍 완료 시
                         () -> {
-                            String aiMessage = fullResponse.toString();
-                            // 토큰 수: 앨런 AI 미제공 → 글자 수 / 4 로 추정
-                            int tokensUsed = aiMessage.length() / 4;
+                            String aiMessage = cleanResponse.toString();
 
-                            // 4. AI 응답 전체 DB 저장 (role = "assistant")
+                            // 질문 + 답변 길이 기준으로 토큰 추정 후 모델별 배율 적용
+                            double multiplier = getTokenMultiplier(chatRoom.getModel());
+                            int tokensUsed = (int) ((content.length() + aiMessage.length()) / 4 * multiplier);
+
+                            // DB에 순수 텍스트만 저장
                             chatMessageRepository.save(
                                     ChatMessageEntity.of(chatroomId, "assistant", aiMessage, tokensUsed));
 
-                            // 5. 사용자 토큰 차감
-                            user.setUsedToken(user.getUsedToken() + tokensUsed);
+                            // 한도를 초과하지 않도록 남은 토큰까지만 차감
+                            int tokenLimit = user.getPlan().getTokenLimit();
+                            int newUsed    = Math.min(user.getUsedToken() + tokensUsed, tokenLimit);
+                            user.setUsedToken(newUsed);
                             userRepository.save(user);
 
-                            log.info("스트리밍 완료 chatroomId = {}, tokensUsed = {}", chatroomId, tokensUsed);
+                            log.info("스트리밍 완료 chatroomId = {}, tokensUsed = {}, usedToken = {}/{}",
+                                    chatroomId, tokensUsed, newUsed, tokenLimit);
+
+                            // 차감 후 한도 도달 시 클라이언트에 알림 이벤트 전송
+                            if (newUsed >= tokenLimit) {
+                                try {
+                                    emitter.send(SseEmitter.event()
+                                            .name("token-exhausted")
+                                            .data("토큰 한도에 도달했습니다. 플랜을 업그레이드 해주세요."));
+                                    log.warn("토큰 한도 도달 - userId = {}, usedToken = {}", userId, newUsed);
+                                } catch (IOException e) {
+                                    log.warn("token-exhausted 이벤트 전송 실패 = {}", e.getMessage());
+                                }
+                            }
+
                             emitter.complete();
                         }
                 );
@@ -191,6 +215,49 @@ public class ChatService {
     }
 
     /**
+     * Alan AI continue 청크에서 순수 텍스트 추출
+     *
+     * 청크 형식: {'type': 'continue', 'data': {'content': '텍스트'}}
+     * - continue 타입만 처리 (complete 타입은 무시 - continue 누적으로 전체 텍스트 완성됨)
+     * - continue 청크는 1~5자 단위의 짧은 조각이므로 apostrophe 파싱 문제 없음
+     */
+    private String extractContinueContent(String chunk) {
+        if (chunk == null || chunk.isBlank()) return null;
+
+        // continue 타입이 아니면 무시
+        if (!chunk.contains("'continue'")) return null;
+
+        // 'content': '텍스트'} 패턴에서 텍스트 추출
+        int markerIdx = chunk.indexOf(CONTENT_MARKER);
+        if (markerIdx == -1) return null;
+
+        int start = markerIdx + CONTENT_MARKER.length();
+        if (start >= chunk.length()) return null;
+
+        // '} 패턴을 역탐색해서 닫는 위치 결정
+        // 청크 끝부분: ...'텍스트'}} 이므로 lastIndexOf("'}") 로 찾을 수 있음
+        int end = chunk.lastIndexOf("'}");
+        if (end <= start) return "";
+
+        return chunk.substring(start, end);
+    }
+
+    /**
+     * 모델별 토큰 차감 배율
+     * alan-4-turbo: 2.0배 (고성능 모델)
+     * alan-4.1:     1.5배 (중간 모델)
+     * alan-4.0:     1.0배 (기본 모델)
+     */
+    private double getTokenMultiplier(String modelName) {
+        if (modelName == null) return 1.0;
+        return switch (modelName) {
+            case "alan-4-turbo" -> 2.0;
+            case "alan-4.1"     -> 1.5;
+            default             -> 1.0;
+        };
+    }
+
+    /**
      * 플랜에서 해당 모델 사용 가능 여부 검증
      */
     private void checkModelAvailable(UserEntity user, String modelName) {
@@ -218,7 +285,7 @@ public class ChatService {
      */
     private void checkTokenLimit(UserEntity user) {
         int tokenLimit = user.getPlan().getTokenLimit();
-        int usedToken = user.getUsedToken();
+        int usedToken  = user.getUsedToken();
         if (usedToken >= tokenLimit) {
             log.warn("토큰 한도 초과 - userId = {}, usedToken = {}, tokenLimit = {}", user.getId(), usedToken, tokenLimit);
             throw new IllegalArgumentException("토큰 한도를 초과했습니다. 플랜을 업그레이드 해주세요");

@@ -10,7 +10,8 @@ window.addEventListener('DOMContentLoaded', function () {
     const typeConfig = {
         summary:   { tabId: 'summary',   inputId: 'summaryInput',   resultId: 'summaryResult',   textId: 'summaryResultText',   label: '요약' },
         translate: { tabId: 'translate', inputId: 'translateInput', resultId: 'translateResult', textId: 'translateResultText', label: '번역' },
-        youtube:   { tabId: 'youtube',   inputId: 'youtubeInput',   resultId: 'youtubeResult',   textId: 'youtubeResultText',   label: '유튜브' }
+        youtube:   { tabId: 'youtube',   inputId: 'youtubeInput',   resultId: 'youtubeResult',   textId: 'youtubeResultText',   label: '유튜브' },
+        question:  { tabId: 'question',  inputId: 'questionInput',  resultId: 'questionResult',  textId: 'questionResultText',  label: '질문' }
     };
 
     const aside          = document.getElementById('aside');
@@ -104,7 +105,8 @@ window.addEventListener('DOMContentLoaded', function () {
     [
         ['summaryInput',   'summaryCount'],
         ['translateInput', 'translateCount'],
-        ['youtubeInput',   'youtubeCount']
+        ['youtubeInput',   'youtubeCount'],
+        ['questionInput',  'questionCount']
     ].forEach(function (pair) {
         const textarea = document.getElementById(pair[0]);
         const countEl  = document.getElementById(pair[1]);
@@ -157,7 +159,7 @@ window.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ content: content })
         })
             .then(function (r) {
-                if (!r.ok) throw new Error('요약 실패 (' + r.status + ')');
+                if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
                 return r.json();
             })
             .then(function (res) {
@@ -208,7 +210,7 @@ window.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ contents: contents })
         })
             .then(function (r) {
-                if (!r.ok) throw new Error('번역 실패 (' + r.status + ')');
+                if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
                 return r.json();
             })
             .then(function (res) {
@@ -250,7 +252,8 @@ window.addEventListener('DOMContentLoaded', function () {
                 : { timestamp: '0:' + String(idx).padStart(2, '0'), content: line };
         });
 
-        const subtitle = [{ chapterIdx: 0, chapterTitle: '전체 자막', text: subtitleTexts }];
+        // @JsonProperty("chapter_idx"), @JsonProperty("chapter_title") 때문에 snake_case로 전송
+        const subtitle = [{ chapter_idx: 0, chapter_title: '전체 자막', text: subtitleTexts }];
 
         showLoading('유튜브 자막을 요약하고 있습니다...');
 
@@ -260,7 +263,7 @@ window.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify({ subtitle: subtitle })
         })
             .then(function (r) {
-                if (!r.ok) throw new Error('요약 실패 (' + r.status + ')');
+                if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
                 return r.json();
             })
             .then(function (res) {
@@ -293,6 +296,31 @@ window.addEventListener('DOMContentLoaded', function () {
                 text = text.trim();
                 showResult('youtubeResult', 'youtubeResultText', text);
                 saveHistory('youtube', raw, text);
+            })
+            .catch(function (err) { showToast(err.message || '오류가 발생했습니다.', true); })
+            .finally(hideLoading);
+    });
+
+
+    // AI 질문 GET /api/alan/question
+    document.getElementById('questionBtn').addEventListener('click', function () {
+        const content = document.getElementById('questionInput').value.trim();
+        if (!content) { showToast('질문 내용을 입력해주세요.', true); return; }
+
+        showLoading('AI가 답변을 생성하고 있습니다...');
+
+        fetch('/api/alan/question?content=' + encodeURIComponent(content), {
+            method: 'GET',
+            headers: { 'X-CSRF-TOKEN': getCsrfToken() }
+        })
+            .then(function (r) {
+                if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
+                return r.json();
+            })
+            .then(function (res) {
+                const text = (res.data && res.data.answer) ? res.data.answer : '답변 결과가 없습니다.';
+                showResult('questionResult', 'questionResultText', text);
+                saveHistory('question', content, text);
             })
             .catch(function (err) { showToast(err.message || '오류가 발생했습니다.', true); })
             .finally(hideLoading);
@@ -451,6 +479,19 @@ window.addEventListener('DOMContentLoaded', function () {
 
     function hideLoading() {
         loadingOverlay.classList.add('hidden');
+    }
+
+    // 서버 에러 응답에서 메시지 추출
+    // GlobalExceptionHandler가 {"success": false, "message": "..."} 형태로 반환
+    function parseErrorMessage(r) {
+        return r.json()
+            .then(function (body) {
+                if (body && body.message) return body.message;
+                return 'HTTP ' + r.status + ' 오류가 발생했습니다.';
+            })
+            .catch(function () {
+                return 'HTTP ' + r.status + ' 오류가 발생했습니다.';
+            });
     }
 
     // 토스트 알림

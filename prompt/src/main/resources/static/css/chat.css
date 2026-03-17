@@ -42,14 +42,14 @@ aside > nav > ul > li > .btnEdit:hover {
 }
 
 /* 채팅방 없을 때 */
-aside > nav > ul > li.roomEmpty {
+aside > nav > ul > li.listEmpty {
     padding: 8px 6px;
     font-size: 12px;
     color: var(--text-muted);
     cursor: default;
 }
 
-aside > nav > ul > li.roomEmpty:hover { background-color: transparent; }
+aside > nav > ul > li.listEmpty:hover { background-color: transparent; }
 
 /* 메인 */
 main {

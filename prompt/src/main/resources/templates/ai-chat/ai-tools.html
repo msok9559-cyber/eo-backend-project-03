@@ -76,6 +76,7 @@
         <button class="tabBtn active" data-tab="summary"   role="tab" aria-selected="true">페이지 요약</button>
         <button class="tabBtn"        data-tab="translate" role="tab" aria-selected="false">페이지 번역</button>
         <button class="tabBtn"        data-tab="youtube"   role="tab" aria-selected="false">유튜브 요약</button>
+        <button class="tabBtn"        data-tab="question"  role="tab" aria-selected="false">AI 질문</button>
     </div>
 
     <!-- 페이지 요약 -->
@@ -143,6 +144,28 @@
                 <button class="copyBtn" data-target="youtubeResultText">복사</button>
             </div>
             <div id="youtubeResultText" class="resultText"></div>
+        </div>
+    </section>
+    <!-- AI 질문 -->
+    <section id="panelQuestion" class="panel hidden" role="tabpanel">
+        <div class="toolCard">
+            <div class="cardTop">
+                <span>질문 내용</span>
+                <span id="questionCount" class="count">0자</span>
+            </div>
+            <p class="hint">AI에게 궁금한 것을 질문하세요. 간결한 답변을 즉시 받아볼 수 있습니다.</p>
+            <textarea id="questionInput" placeholder="질문을 입력하세요..." aria-label="AI 질문 내용"></textarea>
+            <div class="cardBottom">
+                <button class="clearBtn" data-clear="questionInput questionCount questionResult">초기화</button>
+                <button id="questionBtn" class="runBtn">질문하기</button>
+            </div>
+        </div>
+        <div id="questionResult" class="resultCard hidden">
+            <div class="cardTop">
+                <span>AI 답변</span>
+                <button class="copyBtn" data-target="questionResultText">복사</button>
+            </div>
+            <div id="questionResultText" class="resultText"></div>
         </div>
     </section>
 

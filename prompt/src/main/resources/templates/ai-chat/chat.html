@@ -54,7 +54,9 @@
         <div>
             <img src="https://ui-avatars.com/api/?name=User&background=eee&color=333&size=32" alt="프로필 이미지">
             <!-- 이름 표시 -->
-            <span id="userEmail" th:text="${myInfo?.username}"></span>
+            <span id="userEmail"
+                  th:text="${myInfo?.username}"
+                  th:data-plan="${myInfo?.planName}"></span>
         </div>
 
         <!-- 설정 버튼 (배경 이미지) -->
