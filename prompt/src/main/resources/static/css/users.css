@@ -116,6 +116,8 @@ body {
 .btn-secondary {
     background-color: #eef1f5;
     color: #333;
+    line-height: 1.4;
+    text-decoration: none;
 }
 
 /* 테이블 */
@@ -238,6 +240,7 @@ body {
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .page-btn.active {
@@ -342,15 +345,28 @@ body {
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background-color: #eef1f5;
     color: #333;
     font-size: 20px;
     line-height: 1;
     cursor: pointer;
+
+    background-color: #eef1f5;
+    background-image: url('https://i.imgur.com/kdX2tNQ.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px 18px;
 }
 
 #overlay-close-btn:hover {
     background-color: #e5e7eb;
+}
+
+#overlay-close-btn > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
 }
 
 /* 오버레이 바디 */
@@ -552,6 +568,11 @@ body {
     .detail-grid {
         grid-template-columns: 1fr 1fr;
     }
+}
+
+html.modal-open,
+body.modal-open {
+    overflow: hidden;
 }
 
 @media (max-width: 768px) {

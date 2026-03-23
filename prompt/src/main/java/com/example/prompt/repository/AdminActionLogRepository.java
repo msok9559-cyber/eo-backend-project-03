@@ -16,14 +16,14 @@ public interface AdminActionLogRepository extends JpaRepository<AdminActionLogEn
         select l
         from AdminActionLogEntity l
         where (:adminId = '' or l.adminId like concat('%', :adminId, '%'))
-          and (:actionType is null or l.actionType = :actionType)
+          and (:actionType = '' or l.actionType = :actionType)
           and (:startDateTime is null or l.createdAt >= :startDateTime)
           and (:endDateTime is null or l.createdAt <= :endDateTime)
         order by l.createdAt desc
     """)
     Page<AdminActionLogEntity> searchLogs(
             @Param("adminId") String adminId,
-            @Param("actionType") AdminUserActionType actionType,
+            @Param("actionType") String actionType,
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime,
             Pageable pageable

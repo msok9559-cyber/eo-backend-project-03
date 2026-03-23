@@ -176,36 +176,42 @@ body {
 }
 
 /* 모달 */
-/* 모달 */
 #plan-modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
 }
 
 #plan-modal.hidden {
     display: none;
 }
 
-#plan-modal > .modal-backdrop {
-    position: absolute;
+.modal-backdrop {
+    position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.45);
 }
 
-#plan-modal > .modal-dialog {
+.modal-dialog {
     position: relative;
     width: 100%;
     max-width: 560px;
-    margin: 80px auto;
+    max-height: calc(100vh - 48px);
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
 }
 
-#plan-modal > .modal-dialog > .modal-header {
+.modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -214,43 +220,58 @@ body {
     background-color: #fafafa;
 }
 
-#plan-modal > .modal-dialog > .modal-header > h2 {
+.modal-header > h2 {
     font-size: 20px;
     font-weight: 700;
     color: #222;
 }
 
-#plan-modal > .modal-dialog > .modal-header > #modal-close-btn {
+#modal-close-btn {
     border: none;
     background: none;
-    font-size: 26px;
-    line-height: 1;
-    color: #666;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     cursor: pointer;
+
+    background-color: #eef1f5;
+    background-image: url('https://i.imgur.com/kdX2tNQ.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px 18px;
 }
 
-#plan-modal > .modal-dialog > .modal-body {
+#modal-close-btn > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.modal-body {
     padding: 20px;
+    overflow-y: auto;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group {
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group:last-child {
+.form-group:last-child {
     margin-bottom: 0;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group > label {
+.form-group > label {
     font-size: 14px;
     font-weight: 600;
     color: #333;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group > input {
+.form-group > input {
     height: 44px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
@@ -261,17 +282,17 @@ body {
     box-sizing: border-box;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group > input:focus {
+.form-group > input:focus {
     outline: none;
     border-color: #2b6df8;
 }
 
-#plan-modal > .modal-dialog > .modal-body > .form-group > input[readonly] {
+.form-group > input[readonly] {
     background-color: #f9fafb;
     color: #666;
 }
 
-#plan-modal > .modal-dialog > .modal-footer {
+.modal-footer {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -280,16 +301,20 @@ body {
     background-color: #fafafa;
 }
 
-#plan-modal > .modal-dialog > .modal-footer > #modal-cancel-btn {
+#modal-cancel-btn {
     background-color: #e5e7eb;
     color: #333;
 }
 
-#plan-modal > .modal-dialog > .modal-footer > #modal-save-btn {
+#modal-save-btn {
     background-color: #2b6df8;
     color: #fff;
 }
 
+html.modal-open,
+body.modal-open {
+    overflow: hidden;
+}
 
 /* 반응형 */
 @media (max-width: 1024px) {

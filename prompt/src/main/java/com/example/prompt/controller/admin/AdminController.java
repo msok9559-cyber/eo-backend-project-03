@@ -9,10 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 
 @Controller
@@ -169,18 +172,15 @@ public class AdminController {
      */
     @GetMapping("/logs")
     public String logs(
-            @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "") String adminId,
             @RequestParam(required = false, defaultValue = "") String actionType,
             @RequestParam(required = false, defaultValue = "") String startDate,
             @RequestParam(required = false, defaultValue = "") String endDate,
+            @PageableDefault(size = 10) Pageable pageable,
             Model model
     ) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        Page<AdminActionLogDto> logs = adminService.getAdminActionLogs(
-                adminId, actionType, startDate, endDate, pageable
-        );
+        Page<AdminActionLogDto> logs =
+                adminService.getAdminActionLogs(adminId, actionType, startDate, endDate, pageable);
 
         model.addAttribute("logs", logs);
         model.addAttribute("adminId", adminId);

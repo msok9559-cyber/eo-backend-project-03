@@ -25,10 +25,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function openOverlay() {
         overlay.classList.add("show");
+        document.documentElement.classList.add("modal-open");
+        document.body.classList.add("modal-open");
     }
 
     function closeOverlay() {
         overlay.classList.remove("show");
+        document.documentElement.classList.remove("modal-open");
+        document.body.classList.remove("modal-open");
         resetModalState();
     }
 

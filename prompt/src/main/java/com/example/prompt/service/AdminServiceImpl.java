@@ -349,14 +349,9 @@ public class AdminServiceImpl implements AdminService {
             endDateTime = LocalDate.parse(endDate).atTime(LocalTime.MAX);
         }
 
-        AdminUserActionType actionEnum = null;
-        if (actionType != null && !actionType.isBlank()) {
-            actionEnum = AdminUserActionType.valueOf(actionType);
-        }
-
         Page<AdminActionLogEntity> logs = adminActionLogRepository.searchLogs(
                 adminId,
-                actionEnum,
+                actionType,
                 startDateTime,
                 endDateTime,
                 pageable

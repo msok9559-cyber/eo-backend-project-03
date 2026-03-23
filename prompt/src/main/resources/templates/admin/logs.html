@@ -43,7 +43,7 @@
                             <option value="" th:selected="${actionType == ''}">전체</option>
                             <option value="LOCK" th:selected="${actionType == 'LOCK'}">잠금 처리</option>
                             <option value="UNLOCK" th:selected="${actionType == 'UNLOCK'}">잠금 해제</option>
-                            <option value="DELETE" th:selected="${actionType == 'DELETE'}">탈퇴 처리</option>
+                            <option value="WITHDRAW" th:selected="${actionType == 'WITHDRAW'}">탈퇴 처리</option>
                             <option value="RESTORE" th:selected="${actionType == 'RESTORE'}">복구 처리</option>
                             <option value="PLAN_CHANGE" th:selected="${actionType == 'PLAN_CHANGE'}">플랜 변경</option>
                         </select>
@@ -62,7 +62,7 @@
 
                 <div id="button-area">
                     <button type="submit" class="btn btn-primary">검색</button>
-                    <button type="reset" class="btn btn-secondary">초기화</button>
+                    <a th:href="@{/admin/logs}" class="btn btn-secondary">초기화</a>
                 </div>
             </form>
         </div>
@@ -100,14 +100,14 @@
                             <td>
                                 <span class="log-type"
                                       th:classappend="${log.actionType == 'LOCK'} ? ' lock' :
-                                                       (${log.actionType == 'UNLOCK'} ? ' unlock' :
-                                                       (${log.actionType == 'DELETE'} ? ' delete' :
-                                                       (${log.actionType == 'RESTORE'} ? ' restore' :
-                                                       (${log.actionType == 'PLAN_CHANGE'} ? ' plan' : ''))))"
+                                                     (${log.actionType == 'UNLOCK'} ? ' unlock' :
+                                                     (${log.actionType == 'WITHDRAW'} ? ' delete' :
+                                                     (${log.actionType == 'RESTORE'} ? ' restore' :
+                                                     (${log.actionType == 'PLAN_CHANGE'} ? ' plan' : ''))))"
 
                                       th:text="${log.actionType == 'LOCK'} ? '잠금 처리' :
                                                (${log.actionType == 'UNLOCK'} ? '잠금 해제' :
-                                               (${log.actionType == 'DELETE'} ? '탈퇴 처리' :
+                                               (${log.actionType == 'WITHDRAW'} ? '탈퇴 처리' :
                                                (${log.actionType == 'RESTORE'} ? '복구 처리' :
                                                (${log.actionType == 'PLAN_CHANGE'} ? '플랜 변경' : ''))))">
                                 </span>

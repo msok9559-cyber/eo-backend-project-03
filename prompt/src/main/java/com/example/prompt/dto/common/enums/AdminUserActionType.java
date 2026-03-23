@@ -4,5 +4,6 @@ public enum AdminUserActionType {
     LOCK,
     UNLOCK,
     RESTORE,
-    WITHDRAW
+    WITHDRAW,
+    PLAN_CHANGE
 }

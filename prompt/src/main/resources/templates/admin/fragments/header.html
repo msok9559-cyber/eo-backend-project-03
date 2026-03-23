@@ -7,8 +7,11 @@
     </div>
 
     <div id="header-right">
-        <span>관리자명</span>
-        <button type="button" id="logout-btn">로그아웃</button>
+        <span th:text="${#authentication.principal.adminName}">관리자명</span>
+        <form th:action="@{/admin/logout}" method="post" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" id="logout-btn">로그아웃</button>
+        </form>
     </div>
 </header>
 </body>

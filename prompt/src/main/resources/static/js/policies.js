@@ -21,10 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal() {
         planModal.classList.remove('hidden');
+        document.documentElement.classList.add('modal-open');
+        document.body.classList.add('modal-open');
     }
 
     function closeModal() {
         planModal.classList.add('hidden');
+        document.documentElement.classList.remove('modal-open');
+        document.body.classList.remove('modal-open');
     }
 
     function fillModal(button) {

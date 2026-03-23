@@ -20,10 +20,6 @@ public class AdminDetailsService implements UserDetailsService {
         AdminEntity admin = adminRepository.findByAdminId(adminId)
                 .orElseThrow(() -> new UsernameNotFoundException("관리자를 찾을 수 없습니다."));
 
-        return User.builder()
-                .username(admin.getAdminId())
-                .password(admin.getPassword())
-                .authorities("ADMIN")
-                .build();
+        return new AdminPrincipal(admin);
     }
 }

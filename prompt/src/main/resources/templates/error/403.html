@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>접근 제한</title>
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+</head>
+<body>
+    <div id="error-container">
+        <h1>403</h1>
+        <p>관리자만 접근할 수 있는 페이지입니다.</p>
+
+        <div class="btn-group">
+            <a href="/" class="btn">메인으로 이동</a>
+            <a href="/admin/login" class="btn btn-primary">관리자 로그인</a>
+        </div>
+    </div>
+</body>
+</html>

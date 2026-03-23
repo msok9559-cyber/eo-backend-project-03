@@ -70,7 +70,7 @@ class SecurityConfiguration {
                                 "/api/admin/auth/login",
                                 "/api/stats"
                         ).permitAll()
-                        .requestMatchers("/api/admin/**").authenticated()
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -103,7 +103,7 @@ class SecurityConfiguration {
                                 "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
-                        .requestMatchers("/admin", "/admin/**").authenticated()
+                        .requestMatchers("/admin", "/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -117,9 +117,18 @@ class SecurityConfiguration {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/admin/logout")
-                        .logoutSuccessUrl("/admin/login")
+                        .logoutSuccessUrl("/admin/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                        .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendRedirect("/admin/login")
+                        )
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendRedirect("/error/403")
+                        )
                 )
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/h2-console/**", "/api/**")
