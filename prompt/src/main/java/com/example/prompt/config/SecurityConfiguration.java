@@ -37,13 +37,13 @@ class SecurityConfiguration {
         return config.getAuthenticationManager();
     }
 
+    // 관리자 전용 - @Bean 유지 (admin 체인에서만 사용)
     @Bean
     public DaoAuthenticationProvider adminAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(adminDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
-
 
     /**
      * JWT 체인 - /api/chat/** 제외 (세션 체인에서 처리)
@@ -137,7 +137,11 @@ class SecurityConfiguration {
     @Bean
     @Order(3)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        DaoAuthenticationProvider userProvider = new DaoAuthenticationProvider(userDetailsService);
+        userProvider.setPasswordEncoder(passwordEncoder);
+
         http
+                .authenticationProvider(userProvider)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/index",

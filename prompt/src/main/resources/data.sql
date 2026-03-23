@@ -37,9 +37,4 @@ VALUES (1, 'testuser', '테스트유저', '$2a$10$HXPeKfi7mPp2c06omWGQXuXjD1wI9G
 DELETE FROM admin WHERE admin_id = 'admin';
 
 INSERT INTO admin (admin_id, admin_name, password, created_at)
-VALUES (
-           'admin',
-           '관리자',
-           '$2a$10$gotJuh1CdusjYeArK8tUd.QwBg7oBx3cVZs87QKV0v9yT4EsgeJTW',
-           CURRENT_TIMESTAMP
-       );
+VALUES ('admin', '관리자', '$2a$10$gotJuh1CdusjYeArK8tUd.QwBg7oBx3cVZs87QKV0v9yT4EsgeJTW', CURRENT_TIMESTAMP);

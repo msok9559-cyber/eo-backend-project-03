@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ChatService {
@@ -39,6 +38,7 @@ public class ChatService {
      * 채팅방 생성
      * - 사용자의 플랜에서 해당 모델 사용 가능 여부 검증 후 생성
      */
+    @Transactional
     public ChatRoomDto.Response createChatRoom(Long userId, ChatRoomDto.Request dto) {
         // 사용자 조회
         UserEntity user = userRepository.findById(userId)
@@ -92,30 +92,36 @@ public class ChatService {
      * 5. 완료 시 순수 텍스트만 DB 저장 + 토큰 차감
      * 6. 차감 후 한도 도달 시 token-exhausted 이벤트 전송
      */
+    @Transactional
     public SseEmitter streamMessage(Long chatroomId, Long userId, String content) {
         // 3분 타임아웃 (앨런 AI 응답이 늦어질 경우 대비)
         SseEmitter emitter = new SseEmitter(180_000L);
 
-        // 채팅방 존재 여부 확인
+        // 채팅방 존재 여부 + 소유자 검증
         ChatRoomEntity chatRoom = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
 
         // 채팅방 소유자 검증
         checkChatRoomOwner(chatRoom, userId);
 
-        // 사용자 조회 및 토큰 한도 확인
+        // 사용자 조회 + 토큰 한도 확인
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
         checkTokenLimit(user);
 
-        // 1. 사용자 메시지 DB 저장 (role = "user")
-        chatMessageRepository.save(
-                ChatMessageEntity.of(chatroomId, "user", content, 0));
+        // 사용자 메시지 DB 저장
+        chatMessageRepository.save(ChatMessageEntity.of(chatroomId, "user", content, 0));
+
+        // 트랜잭션 안에서 필요한 값 미리 추출 (메서드 리턴 후 세션 종료 대비)
+        String model = chatRoom.getModel();
+        int tokenLimit = user.getPlan().getTokenLimit();
+
+        log.info("스트리밍 시작 - chatroomId = {}, userId = {}, model = {}", chatroomId, userId, model);
 
         // cleanResponse: continue 청크에서 추출한 순수 텍스트 누적 → DB 저장용
         StringBuilder cleanResponse = new StringBuilder();
 
-        // 2. 앨런 AI 스트리밍 호출
+        // 앨런 AI 스트리밍 호출
         alanAiClient.streamChat(content)
                 .subscribe(
                         // chunk 도착할 때마다 실행
@@ -138,31 +144,19 @@ public class ChatService {
                         // 스트리밍 완료 시
                         () -> {
                             String aiMessage = cleanResponse.toString();
-
-                            // 질문 + 답변 길이 기준으로 토큰 추정 후 모델별 배율 적용
-                            double multiplier = getTokenMultiplier(chatRoom.getModel());
+                            double multiplier = getTokenMultiplier(model);
                             int tokensUsed = (int) ((content.length() + aiMessage.length()) / 4 * multiplier);
 
-                            // DB에 순수 텍스트만 저장
-                            chatMessageRepository.save(
-                                    ChatMessageEntity.of(chatroomId, "assistant", aiMessage, tokensUsed));
+                            boolean exhausted = saveStreamResult(chatroomId, userId, aiMessage, tokensUsed, tokenLimit);
 
-                            // 한도를 초과하지 않도록 남은 토큰까지만 차감
-                            int tokenLimit = user.getPlan().getTokenLimit();
-                            int newUsed    = Math.min(user.getUsedToken() + tokensUsed, tokenLimit);
-                            user.setUsedToken(newUsed);
-                            userRepository.save(user);
+                            log.info("스트리밍 완료 chatroomId = {}, tokensUsed = {}", chatroomId, tokensUsed);
 
-                            log.info("스트리밍 완료 chatroomId = {}, tokensUsed = {}, usedToken = {}/{}",
-                                    chatroomId, tokensUsed, newUsed, tokenLimit);
-
-                            // 차감 후 한도 도달 시 클라이언트에 알림 이벤트 전송
-                            if (newUsed >= tokenLimit) {
+                            if (exhausted) {
                                 try {
                                     emitter.send(SseEmitter.event()
                                             .name("token-exhausted")
                                             .data("토큰 한도에 도달했습니다. 플랜을 업그레이드 해주세요."));
-                                    log.warn("토큰 한도 도달 - userId = {}, usedToken = {}", userId, newUsed);
+                                    log.warn("토큰 한도 도달 - userId = {}", userId);
                                 } catch (IOException e) {
                                     log.warn("token-exhausted 이벤트 전송 실패 = {}", e.getMessage());
                                 }
@@ -178,6 +172,7 @@ public class ChatService {
     /**
      * 채팅방 제목 수정
      */
+    @Transactional
     public void updateTitle(Long chatroomId, Long userId, String chatTitle) {
         ChatRoomEntity room = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
@@ -190,6 +185,7 @@ public class ChatService {
     /**
      * 채팅방 단건 삭제 (Soft Delete)
      */
+    @Transactional
     public void deleteChatRoom(Long chatroomId, Long userId) {
         ChatRoomEntity room = chatRoomRepository.findById(chatroomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방을 찾을 수 없습니다"));
@@ -204,6 +200,7 @@ public class ChatService {
     /**
      * 전체 채팅방 삭제 (Soft Delete)
      */
+    @Transactional
     public void deleteAllChatRooms(Long userId) {
         List<ChatRoomEntity> rooms = chatRoomRepository
                 .findByIdAndDeletedAtIsNullOrderByCreatedAtDesc(userId);
@@ -255,6 +252,26 @@ public class ChatService {
             case "alan-4.1"     -> 1.5;
             default             -> 1.0;
         };
+    }
+
+    /**
+     * 스트리밍 완료 후 DB 저장 + 토큰 차감
+     * reactor 스레드에서 호출 - 각 Repository 메서드가 자체 트랜잭션으로 처리
+     * @return 토큰 한도 도달 여부
+     */
+    public boolean saveStreamResult(Long chatroomId, Long userId, String aiMessage, int tokensUsed, int tokenLimit) {
+        chatMessageRepository.save(
+                ChatMessageEntity.of(chatroomId, "assistant", aiMessage, tokensUsed));
+
+        UserEntity freshUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        int newUsed = Math.min(freshUser.getUsedToken() + tokensUsed, tokenLimit);
+        freshUser.setUsedToken(newUsed);
+        userRepository.save(freshUser);
+
+        log.info("토큰 차감 완료 - userId = {}, tokensUsed = {}, usedToken = {}/{}", userId, tokensUsed, newUsed, tokenLimit);
+        return newUsed >= tokenLimit;
     }
 
     /**
