@@ -104,10 +104,7 @@ class SecurityConfiguration {
                                 "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
-<<<<<<< main
-=======
-                        // 일반 유저 어드민 대쉬보드 로그인불가
->>>>>>> main
+
                         .requestMatchers("/admin", "/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
