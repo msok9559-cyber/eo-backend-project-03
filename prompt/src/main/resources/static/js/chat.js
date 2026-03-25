@@ -122,7 +122,7 @@ window.addEventListener('DOMContentLoaded', function () {
         } else if (action === 'plan') {
             location.href = '/payment';
         } else if (action === 'help') {
-            showToast('도움말 페이지 준비 중입니다.');
+            location.href = '/guide';
         } else if (action === 'logout') {
             fetch('/logout', {
                 method: 'POST',

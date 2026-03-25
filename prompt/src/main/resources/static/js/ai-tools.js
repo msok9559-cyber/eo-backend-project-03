@@ -71,7 +71,7 @@ window.addEventListener('DOMContentLoaded', function () {
         } else if (action === 'plan') {
             location.href = '/payment';
         } else if (action === 'help') {
-            showToast('도움말 페이지 준비 중입니다.');
+            location.href = '/guide';
         } else if (action === 'logout') {
             fetch('/logout', {
                 method: 'POST',
@@ -145,7 +145,9 @@ window.addEventListener('DOMContentLoaded', function () {
 
     // 초기화 버튼 - 유튜브
     document.getElementById('youtubeClearBtn').addEventListener('click', function () {
-        document.getElementById('youtubeUrlInput').value = '';
+        document.getElementById('youtubeUrlInput').value   = '';
+        document.getElementById('youtubeTextInput').value  = '';
+        document.getElementById('youtubeCount').textContent = '0자';
         document.getElementById('youtubeResult').classList.add('hidden');
     });
 
@@ -270,60 +272,105 @@ window.addEventListener('DOMContentLoaded', function () {
             .finally(hideLoading);
     });
 
-    // 유튜브 URL 자막 자동 추출 후 요약 → POST /api/alan/youtube/url
+    // 유튜브 텍스트 글자 수 카운트
+    document.getElementById('youtubeTextInput').addEventListener('input', function () {
+        document.getElementById('youtubeCount').textContent = this.value.length + '자';
+    });
+
+    // 유튜브 요약 버튼 - URL 입력 시 자막 자동 추출, 텍스트 입력 시 직접 전송
     document.getElementById('youtubeBtn').addEventListener('click', function () {
-        const url = document.getElementById('youtubeUrlInput').value.trim();
-        if (!url) { showToast('YouTube URL을 입력해주세요.', true); return; }
-        if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
-            showToast('올바른 YouTube URL을 입력해주세요.', true);
-            return;
+        const url  = document.getElementById('youtubeUrlInput').value.trim();
+        const text = document.getElementById('youtubeTextInput').value.trim();
+
+        if (!url && !text) { showToast('YouTube URL 또는 자막 텍스트를 입력해주세요.', true); return; }
+
+        // URL 입력된 경우 → /api/alan/youtube/url (자막 자동 추출)
+        if (url) {
+            if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+                showToast('올바른 YouTube URL을 입력해주세요.', true);
+                return;
+            }
+
+            showLoading('YouTube 자막을 가져오고 있습니다...');
+
+            fetch('/api/alan/youtube/url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
+                body: JSON.stringify({ url: url })
+            })
+                .then(function (r) {
+                    if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
+                    return r.json();
+                })
+                .then(function (res) { handleYoutubeResult(res, url); })
+                .catch(function (err) { showToast(err.message || '오류가 발생했습니다.', true); })
+                .finally(hideLoading);
+
+            // 텍스트 입력된 경우 → /api/alan/youtube/summary (자막 텍스트 직접 전송)
+        } else {
+            showLoading('AI가 자막을 요약하고 있습니다...');
+
+            // 텍스트를 줄 단위로 나눠 SubtitleText 배열로 변환
+            const lines = text.split('\n')
+                .map(function (line) { return line.trim(); })
+                .filter(function (line) { return line.length > 0; });
+
+            const subtitleBody = {
+                subtitle: [{
+                    chapter_idx: 0,
+                    chapter_title: '동영상 내용',
+                    text: lines.map(function (line, i) {
+                        return { timestamp: '0:' + String(i).padStart(2, '0'), content: line };
+                    })
+                }]
+            };
+
+            fetch('/api/alan/youtube/summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
+                body: JSON.stringify(subtitleBody)
+            })
+                .then(function (r) {
+                    if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
+                    return r.json();
+                })
+                .then(function (res) { handleYoutubeResult(res, text.substring(0, 50) + '...'); })
+                .catch(function (err) { showToast(err.message || '오류가 발생했습니다.', true); })
+                .finally(hideLoading);
+        }
+    });
+
+    // 유튜브 결과 처리 공통 함수
+    function handleYoutubeResult(res, inputValue) {
+        const data = res.data;
+        let text = '';
+
+        if (data && data.summary) {
+            const s = data.summary;
+            if (s.totalSummary && s.totalSummary.length) {
+                text += '[ 전체 요약 ]\n';
+                s.totalSummary.forEach(function (line) { text += line + '\n'; });
+                text += '\n';
+            }
+            if (s.chapters && s.chapters.length) {
+                s.chapters.forEach(function (ch) {
+                    text += '[ ' + (ch.title || ('챕터 ' + (ch.index + 1))) + ' ]\n';
+                    if (ch.summary && ch.summary.length) {
+                        ch.summary.forEach(function (line) { text += '- ' + line + '\n'; });
+                    }
+                    text += '\n';
+                });
+            }
         }
 
-        showLoading('YouTube 자막을 가져오고 있습니다...');
+        if (!text.trim()) {
+            text = JSON.stringify(res.data, null, 2);
+        }
 
-        fetch('/api/alan/youtube/url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
-            body: JSON.stringify({ url: url })
-        })
-            .then(function (r) {
-                if (!r.ok) return parseErrorMessage(r).then(function (msg) { throw new Error(msg); });
-                return r.json();
-            })
-            .then(function (res) {
-                // res.data 안의 summary 구조를 가독성 있게 표시
-                const data = res.data;
-                let text = '';
-
-                if (data && data.summary) {
-                    const s = data.summary;
-                    if (s.totalSummary && s.totalSummary.length) {
-                        text += '[ 전체 요약 ]\n';
-                        s.totalSummary.forEach(function (line) { text += line + '\n'; });
-                        text += '\n';
-                    }
-                    if (s.chapters && s.chapters.length) {
-                        s.chapters.forEach(function (ch) {
-                            text += '[ ' + (ch.title || ('챕터 ' + (ch.index + 1))) + ' ]\n';
-                            if (ch.summary && ch.summary.length) {
-                                ch.summary.forEach(function (line) { text += '- ' + line + '\n'; });
-                            }
-                            text += '\n';
-                        });
-                    }
-                }
-
-                if (!text.trim()) {
-                    text = JSON.stringify(res.data, null, 2);
-                }
-
-                text = text.trim();
-                showResult('youtubeResult', 'youtubeResultText', text);
-                saveHistory('youtube', url, text);
-            })
-            .catch(function (err) { showToast(err.message || '오류가 발생했습니다.', true); })
-            .finally(hideLoading);
-    });
+        text = text.trim();
+        showResult('youtubeResult', 'youtubeResultText', text);
+        saveHistory('youtube', inputValue, text);
+    }
 
 
 
@@ -484,7 +531,10 @@ window.addEventListener('DOMContentLoaded', function () {
             document.getElementById('translateInput').value    = isUrl ? '' : item.input;
             document.getElementById('translateCount').textContent = isUrl ? '0자' : item.input.length.toLocaleString() + '자';
         } else if (item.type === 'youtube') {
-            document.getElementById('youtubeUrlInput').value = item.input;
+            const isYoutubeUrl = item.input.includes('youtube.com') || item.input.includes('youtu.be');
+            document.getElementById('youtubeUrlInput').value   = isYoutubeUrl ? item.input : '';
+            document.getElementById('youtubeTextInput').value  = isYoutubeUrl ? '' : item.input;
+            document.getElementById('youtubeCount').textContent = isYoutubeUrl ? '0자' : item.input.length.toLocaleString() + '자';
         } else {
             document.getElementById(cfg.inputId).value = item.input;
             const countEl = document.getElementById('questionCount');

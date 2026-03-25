@@ -124,11 +124,14 @@
     <section id="panelYoutube" class="panel hidden" role="tabpanel">
         <div class="toolCard">
             <div class="cardTop">
-                <span>YouTube URL</span>
+                <span>YouTube URL 또는 자막 텍스트</span>
+                <span id="youtubeCount" class="count">0자</span>
             </div>
             <p class="hint">자막이 있는 YouTube 영상의 URL을 붙여넣으세요. 자동으로 자막을 가져와 요약해 드립니다.</p>
             <input type="url" id="youtubeUrlInput" class="urlInput"
                    placeholder="https://www.youtube.com/watch?v=...">
+            <p class="hint hintDivider">또는 자막 텍스트를 직접 붙여넣으세요.</p>
+            <textarea id="youtubeTextInput" placeholder="유튜브 영상의 자막을 복사해서 붙여넣으세요..." aria-label="유튜브 자막 텍스트"></textarea>
             <div class="cardBottom">
                 <button id="youtubeClearBtn" class="clearBtn">초기화</button>
                 <button id="youtubeBtn" class="runBtn">요약하기</button>
