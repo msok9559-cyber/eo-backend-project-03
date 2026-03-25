@@ -29,7 +29,7 @@
             <th:block sec:authorize="isAuthenticated()">
                 <button type="button" id="mypage-btn" class="nav-mypage-btn">마이페이지</button>
                 <form th:action="@{/logout}" method="post" id="logout-form">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="nav-logout-btn">로그아웃</button>
                 </form>
             </th:block>
@@ -60,11 +60,11 @@
                           th:text="${plan != null ? #numbers.formatInteger(plan.price, 1, 'COMMA') + '원 / 월' : '-'}"></span>
                 </div>
                 <ul>
-                    <li th:if="${plan != null and plan.planName == 'PRO'}">토큰 10,0000개 / 월</li>
+                    <li th:if="${plan != null and plan.planName == 'PRO'}">토큰 100,000개 / 월</li>
                     <li th:if="${plan != null and plan.planName == 'PRO'}">알랜 4.0.2 모델 사용</li>
                     <li th:if="${plan != null and plan.planName == 'PRO'}">고급 AI 대화</li>
                     <li th:if="${plan != null and plan.planName == 'PRO'}">우선 응답 처리</li>
-                    <li th:if="${plan != null and plan.planName == 'MAX'}">토큰 50,0000개 / 월</li>
+                    <li th:if="${plan != null and plan.planName == 'MAX'}">토큰 500,000개 / 월</li>
                     <li th:if="${plan != null and plan.planName == 'MAX'}">알랜 4.0.3 모델 사용</li>
                     <li th:if="${plan != null and plan.planName == 'MAX'}">최상위 AI 대화</li>
                     <li th:if="${plan != null and plan.planName == 'MAX'}">우선 응답 처리</li>
@@ -112,7 +112,7 @@
         </button>
 
         <!-- CSRF -->
-        <input type="hidden" id="csrf-token" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" id="csrf-token" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
     </div>
 </main>

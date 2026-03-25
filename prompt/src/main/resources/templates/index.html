@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Prompt AI</title>
     <link rel="stylesheet" th:href="@{/css/reset.css}">
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
@@ -33,7 +33,7 @@
             <th:block sec:authorize="isAuthenticated()">
                 <button type="button" id="mypage-btn" class="nav-mypage-btn">마이페이지</button>
                 <form th:action="@{/logout}" method="post" id="logout-form">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="nav-logout-btn">로그아웃</button>
                 </form>
             </th:block>
@@ -56,8 +56,8 @@
     </div>
 </section>
 
-<!-- stats  -->
-<section id="stats">
+<!-- stats -->
+<div id="stats">
     <div>
         <div>
             <span id="stat-users">0</span>
@@ -72,10 +72,10 @@
             <span>누적 결제 수</span>
         </div>
     </div>
-</section>
+</div>
 
 <!-- Features -->
-<section id="features">
+<div id="features">
     <div>
         <h2>기능 소개</h2>
         <p>Prompt AI가 제공하는 핵심 기능들을 만나보세요.</p>
@@ -97,7 +97,7 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <!-- Footer -->
 <footer id="footer">
