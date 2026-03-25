@@ -40,6 +40,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         UserEntity user = findOrCreateUser(provider, providerId, email, name);
 
+        if (!user.isActive()) {
+            throw new OAuth2AuthenticationException("탈퇴된 계정입니다.");
+        }
+
+        if (user.isLocked()) {
+            throw new OAuth2AuthenticationException("잠금된 계정입니다.");
+        }
+
         log.info("OAuth2 유저 처리 완료 - userId: {}", user.getId());
         return new CustomOAuth2UserDetails(user, attributes);
     }

@@ -190,6 +190,7 @@ class SecurityConfiguration {
                         .loginPage("/login")
                         .userInfoEndpoint(ui -> ui.userService(oAuth2UserService))
                         .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
