@@ -87,8 +87,10 @@ body {
     gap: 16px;
 }
 
-.plan-card {
-    margin-bottom: 0;
+.plan-grid-title {
+    grid-column: span 3;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .policy-list {
@@ -328,6 +330,10 @@ body.modal-open {
 
     #plan-grid {
         grid-template-columns: 1fr;
+    }
+
+    .plan-grid-title {
+        grid-column: span 1;
     }
 }
 

@@ -49,6 +49,8 @@
         </section>
 
         <section id="plan-grid">
+            <h2 class="plan-grid-title">플랜 목록</h2>
+
             <section class="panel plan-card" th:each="plan : ${plans}">
                 <div class="panel-header">
                     <h2 th:text="${plan.planName + ' 플랜'}">NORMAL 플랜</h2>
